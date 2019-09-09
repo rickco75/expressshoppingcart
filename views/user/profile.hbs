@@ -1,1 +1,43 @@
-<h1>user profile</h1>
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-body">
+                <h4 class="card-title">
+                    User Profile
+                </h4>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-body">
+                <h4 class="card-title">
+                    {{user.firstName}} {{user.lastName}}
+                </h4>
+                <h6 class="card-subtitle mb-2">Username: {{user.email}}</h6>
+                <h6 class="card-text">
+                    <p>City: {{user.city}}</p>
+                    <p>State: {{user.state}}</p>
+                    <p>Phone: {{user.phone}}</p>
+                    <p>Email: {{user.email}}</p>
+                    <p>System Admin: {{user.admin}}</p>
+                </h6>
+            </div>
+        </div>
+    </div>
+</div>
+{{#if user.admin}}
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-body">
+                <h4 class="card-title">
+                    Manage Users
+                </h4>
+            </div>
+        </div>
+    </div>
+</div>
+{{/if}}
