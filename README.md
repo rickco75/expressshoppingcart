@@ -1,4 +1,4 @@
 # expressshoppingcart
 Express Shopping Cart 
 
-Deployed on Heroku
+Deployed on Heroku CI enabled
