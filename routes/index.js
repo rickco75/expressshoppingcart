@@ -33,7 +33,11 @@ router.get('/', function (req, res, next) {
 
 router.get('/user/signup', (req, res, next) => {
   var messages = req.flash('error');
-  res.render('user/signup');
+  if (res.locals.loggedIn){
+    res.redirect('profile');
+  } else {
+    res.render('user/signup');
+  }
 });
 
 router.post("/user/signup", function (req, res, next) {
@@ -96,7 +100,7 @@ router.get('/user/profile', (req, res, next) => {
           var foundUser = User.findOne({ email: user.email }, (err, docs) => {
             var lastlogin = moment(docs.lastLogin).format('LLL');
             foundUsers = User.find( (err,docs2)=>{
-              res.render('user/profile', { user: docs,users:docs2,lastlogin:lastlogin });                    
+              res.render('user/profile', { user: docs,users:docs2,lastlogin:lastlogin });      
             });            
           });
         } else {
