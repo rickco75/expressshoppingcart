@@ -10,15 +10,6 @@ var moment = require('moment');
 // var csrfProtection = csrf();
 // router.use(csrfProtection);
 
-
-router.delete('/user/delete/:id',(req,res,next)=>{
-  let userId = req.params.id;
-   User.deleteOne({ _id: userId },(err)=>{
-     console.log(err);
-   });
-   res.redirect('/user/profile');
-});
-
 /* GET product listing. */
 router.get('/', function (req, res, next) {
   console.log('/ route for shop/index');
@@ -32,33 +23,43 @@ router.get('/', function (req, res, next) {
   });
 });
 
+router.delete('/user/delete/:id', (req, res, next) => {
+  let userId = req.params.id;
+  User.deleteOne({ _id: userId }, (err) => {
+    console.log(err);
+  });
+  res.redirect('/user/profile');
+});
+
+
 router.get('/user/signup', (req, res, next) => {
-  var messages = req.flash('error');
-  // if (res.locals.loggedIn){
-  //   res.redirect('profile');
-  // } else {
-     res.render('user/signup');
-  // }
+  //var messages = req.flash('error');
+  console.log(res.locals.loggedIn);
+  if (res.locals.loggedIn) {
+    res.redirect('profile');
+  } else {
+    res.render('user/signup');
+  }
 });
 
 router.post("/user/signup", function (req, res, next) {
   var password = authService.hashPassword(req.body.password);
   var email = req.body.email;
-  var user = new User({ 
-      email: email, 
-      password: password,
-      firstName: req.body.firstName,
-      lastName: req.body.lastName,
-      city: req.body.city,
-      state: req.body.state,
-      phone: req.body.phone      
-    });
+  var user = new User({
+    email: email,
+    password: password,
+    firstName: req.body.firstName,
+    lastName: req.body.lastName,
+    city: req.body.city,
+    state: req.body.state,
+    phone: req.body.phone
+  });
   var foundUser = User.find({ email: email }, (err, docs) => {
     if (docs.length == 0) {
       user.save(function (err, doc) {
         if (err) return console.error(err);
         console.log(doc.email + " saved to users collection.");
-        res.render('user/signin', { message: "Thank you for registering! Please signin" });
+        res.render('user/signin', { message: "Thank you for registering! Please sign in" });
       });
     } else {
       console.log('user already exists!')
@@ -95,21 +96,21 @@ router.post("/user/signin", (req, res, next) => {
 router.get('/user/profile', (req, res, next) => {
   let token = req.cookies.jwt;
   if (token) {
-    try{
+    try {
       authService.verifyUser(token).then(user => {
         if (user) {
           var foundUser = User.findOne({ email: user.email }, (err, docs) => {
             var lastlogin = moment(docs.lastLogin).format('LLL');
-            foundUsers = User.find( (err,docs2)=>{
-              res.render('user/profile', { user: docs,users:docs2,lastlogin:lastlogin });      
-            });            
+            foundUsers = User.find((err, docs2) => {
+              res.render('user/profile', { user: docs, users: docs2, lastlogin: lastlogin });
+            });
           });
         } else {
           res.status(401);
           res.send("Invalid Authentication Token");
         }
       });
-    } catch(err){ 
+    } catch (err) {
       console.log(err);
       res.render('user/signin', { message: "Your session has Expired! Please login to continue." });
     }
@@ -122,7 +123,14 @@ router.get("/user/logout", function (req, res, next) {
 });
 
 router.get('/user/signin', (req, res, next) => {
-  res.render('user/signin');
+  loggedinuser = res.locals.loggedIn;
+  console.log(loggedinuser);
+
+  if (loggedinuser) {
+    res.redirect('/user/profile');
+  } else {
+    res.render('user/signin');
+  }
 });
 
 module.exports = router;
