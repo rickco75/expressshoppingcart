@@ -1,6 +1,7 @@
 <nav class="navbar navbar-expand-lg navbar-light bg-light">
-   <a class="navbar-brand" href="#">cobraSoft</a>
-  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+  <a class="navbar-brand" href="/">cobraSoft</a>
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+    aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
     <span class="navbar-toggler-icon"></span>
   </button>
 
@@ -10,30 +11,33 @@
         <a class="nav-link" href="/">Home <span class="sr-only">(current)</span></a>
       </li>
       <li class="nav-item">
-        <a class="nav-link" href="#"><i class="fas fa-shopping-cart"></i> Shopping Cart</a>
+        <a class="nav-link" href="/user/signup"><i class="fas fa-user-plus"></i> Register</a>
       </li>
       <li class="nav-item">
-        <a class="nav-link" href="/user/signup"><i class="fas fa-user-plus"></i> Register</a>
-      </li> 
-      <li class="nav-item">
         <a class="nav-link" href="/user/signin"><i class="fas fa-sign-in-alt"></i> Login</a>
-      </li>              
+      </li>
       <li class="nav-item">
         <a class="nav-link" href="/user/logout"><i class="fas fa-sign-out-alt"></i> Logout</a>
-      </li>            
+      </li>
+
+    </ul>
+    <ul class="navbar-nav mr-auto">
       <li class="nav-item dropdown">
-        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                  <i class="far fa-user"></i> User Account
+        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown"
+          aria-haspopup="true" aria-expanded="false">
+          <i class="far fa-user"></i> User Account
         </a>
         <div class="dropdown-menu" aria-labelledby="navbarDropdown">
           <a class="dropdown-item" href="/user/profile">User Profile</a>
           <div class="dropdown-divider"></div>
-          {{!-- <a class="dropdown-item" href="/user/signin">Login</a>    
-          <div class="dropdown-divider"></div> --}}
-          {{!-- <a class="dropdown-item" href="/user/signup">Register</a>                
-          <div class="dropdown-divider"></div> --}}
-          {{!-- <a class="dropdown-item" href="/user/logout">Logout</a> --}}
         </div>
+      </li>      
+      <li class="nav-item">
+        <a class="nav-link" href="#">
+          <i class="fas fa-shopping-cart"></i>
+          Shopping Cart
+          <span class="badge badge-secondary">{{session.cart.totalQty}}</span>
+        </a>
       </li>
     </ul>
     {{!-- <form class="form-inline my-2 my-lg-0">

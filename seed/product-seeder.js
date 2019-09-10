@@ -1,7 +1,8 @@
 var Product = require('../models/product');
 var mongoose = require('mongoose');
 
-mongoose.connect('mongodb://127.0.0.1:27017/shopping',{ useNewUrlParser: true });
+//mongoose.connect('mongodb://127.0.0.1:27017/shopping',{ useNewUrlParser: true });
+mongoose.connect('mongodb://dbuser:Password1!@ds015750.mlab.com:15750/heroku_w8bbv3s7', { useNewUrlParser: true });
 
 var products = [new Product({
     imagePath: 'https://upload.wikimedia.org/wikipedia/en/thumb/5/5e/Gothiccover.png/220px-Gothiccover.png',
