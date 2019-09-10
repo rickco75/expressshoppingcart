@@ -21,6 +21,7 @@ router.delete('/user/delete/:id',(req,res,next)=>{
 
 /* GET product listing. */
 router.get('/', function (req, res, next) {
+  console.log('/ route for shop/index');
   Product.find(function (err, docs) {
     var productChunks = [];
     var chunkSize = 3;
@@ -33,11 +34,11 @@ router.get('/', function (req, res, next) {
 
 router.get('/user/signup', (req, res, next) => {
   var messages = req.flash('error');
-  if (res.locals.loggedIn){
-    res.redirect('profile');
-  } else {
-    res.render('user/signup');
-  }
+  // if (res.locals.loggedIn){
+  //   res.redirect('profile');
+  // } else {
+     res.render('user/signup');
+  // }
 });
 
 router.post("/user/signup", function (req, res, next) {

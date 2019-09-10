@@ -13,7 +13,8 @@ var flash = require('connect-flash');
 var authService = require('./services/auth');
 
 var app = express();
-mongoose.connect('mongodb://localhost:27017/shopping', { useNewUrlParser: true });
+//mongoose.connect('mongodb://localhost:27017/shopping', { useNewUrlParser: true });
+mongoose.connect('mongodb://dbuser:Password1!@ds015750.mlab.com:15750/heroku_w8bbv3s7', { useNewUrlParser: true });
 //require('./config/passport');
 
 console.log('Db Connected!');
