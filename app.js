@@ -11,8 +11,6 @@ var session = require('express-session');
 var passport = require('passport');
 var flash = require('connect-flash');
 
-
-
 var app = express();
 mongoose.connect('mongodb://localhost:27017/shopping',{ useNewUrlParser: true });
 //require('./config/passport');
@@ -34,6 +32,14 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 app.use(express.static(path.join(__dirname, 'public')));
+
+// get a global login boolean to use throughout application
+
+// app.use((req,res,next)=>{
+//   res.locals.login = req.isAuthenticated();
+//   next();
+// });
+
 
 app.use('/', indexRouter);
 

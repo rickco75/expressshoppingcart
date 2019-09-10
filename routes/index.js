@@ -5,9 +5,19 @@ var passport = require('passport');
 var Product = require('../models/product');
 var authService = require("../services/auth");
 var User = require('../models/user');
+var moment = require('moment');
 
 // var csrfProtection = csrf();
 // router.use(csrfProtection);
+
+
+router.delete('/user/delete/:id',(req,res,next)=>{
+  let userId = req.params.id;
+   User.deleteOne({ _id: userId },(err)=>{
+     console.log(err);
+   });
+   res.redirect('/user/profile');
+});
 
 /* GET product listing. */
 router.get('/', function (req, res, next) {
@@ -57,9 +67,8 @@ router.post("/user/signin", (req, res, next) => {
   var password = req.body.password;
   var foundUser = User.findOne({ email: email }, (err, docs) => {
     if (!docs) {
-      res.render('user/signin', { message: "Your are not a registered user" });
+      res.render('user/signin', { message: "Your are not a registered user, please signup to continue." });
     } else {
-
       // set the last login
       docs.lastLogin = Date.now();
       docs.save();
@@ -82,22 +91,22 @@ router.get('/user/profile', (req, res, next) => {
   let token = req.cookies.jwt;
   if (token) {
     try{
-
       authService.verifyUser(token).then(user => {
         if (user) {
-          console.log(user.email);
           var foundUser = User.findOne({ email: user.email }, (err, docs) => {
-            console.log('valid user');
-            res.render('user/profile', { user: docs });
+            var lastlogin = moment(docs.lastLogin).format('LLL');
+            foundUsers = User.find( (err,docs2)=>{
+              res.render('user/profile', { user: docs,users:docs2,lastlogin:lastlogin });                    
+            });            
           });
         } else {
           res.status(401);
           res.send("Invalid Authentication Token");
         }
       });
-    } catch(err){
-      //console.log(err);
-      res.send("Your session has Expired! Please login to continue.");
+    } catch(err){ 
+      console.log(err);
+      res.render('user/signin', { message: "Your session has Expired! Please login to continue." });
     }
   }
 });

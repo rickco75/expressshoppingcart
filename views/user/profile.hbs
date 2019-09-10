@@ -1,3 +1,17 @@
+<script type="application/javascript">
+    var deleteUser = function (id) {
+        if (id == '{{user._id}}'){
+            alert('You may not delete your own account while you are active!');
+            return false;
+        }
+        else if (confirm('Are you sure? This operation cannot be undone!')) {
+            fetch("/user/delete/" + id, {
+                method: "DELETE"
+            }).then(result => window.location = "/user/profile");
+        }
+    }
+</script>
+
 <div class="row">
     <div class="col-md-12">
         <div class="card">
@@ -13,15 +27,16 @@
     <div class="col-md-12">
         <div class="card">
             <div class="card-body">
-                <h4 class="card-title">
+                <h4 class="card-title font-weight-bold">
                     {{user.firstName}} {{user.lastName}}
                 </h4>
-                <h6 class="card-subtitle mb-2">Username: {{user.email}}</h6>
-                <h6 class="card-text">
+                <h6 class="card-subtitle mb-2 font-weight-bold">Username: {{user.email}}</h6>
+                <h6 class="card-text font-weight-bold">
                     <p>City: {{user.city}}</p>
                     <p>State: {{user.state}}</p>
                     <p>Phone: {{user.phone}}</p>
                     <p>Email: {{user.email}}</p>
+                    <p>Last Login: <em>{{lastlogin}}</em></p>
                     <p>System Admin: {{user.admin}}</p>
                 </h6>
             </div>
@@ -36,6 +51,44 @@
                 <h4 class="card-title">
                     Manage Users
                 </h4>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-body">
+                <table id="userstable" class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Username</th>
+                            <th>Name</th>
+                            <th>Phone</th>
+                            <th>City</th>
+                            <th>State</th>
+                            <th>Admin</th>
+                            <th>Last Login</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {{#each users}}
+                        <tr>
+                            <th>{{email}}</th>
+                            <td>{{firstName}} {{lastName}}</td>
+                            <td>{{phone}}</td>
+                            <td>{{city}}</td>
+                            <td>{{state}}</td>
+                            <td>{{admin}}</td>
+                            <td>{{lastLoginMoment}}</td>
+                            <td><a onClick="deleteUser('{{_id}}')" class="btn btn-danger">x</a>
+                                <button class="btn btn-success">u</button>
+                            </td>
+                        </tr>
+                        {{/each}}
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
