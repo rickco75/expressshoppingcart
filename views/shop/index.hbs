@@ -1,3 +1,11 @@
+<div class="row">
+    <div class="col-sm-6 col-md-4 col-md-offset-4 col-sm-offset-3">
+        <div id="success" class="alert alert-success" {{#if noMessage}}d-none{{/if}}>
+            {{successMsg}}
+        </div>
+    </div>
+</div>
+
 {{#each products }}
 <div class="row mt-3">
     {{# each this }}
@@ -9,7 +17,8 @@
                 <p style="text-align:left;margin:1em" class="description">{{this.description}}</p>
                 <div class="clearfix">
                     <div class="price float-left" style="margin-left:2em;">${{this.price}}</div>
-                    <a href="/add-to-cart/{{this._id}}" class="btn btn-success float-right" role="button">Add to Cart</a>
+                    <a href="/add-to-cart/{{this._id}}" class="btn btn-success float-right" role="button">Add to
+                        Cart</a>
                 </div>
             </div>
         </div>

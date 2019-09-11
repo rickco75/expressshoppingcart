@@ -37,7 +37,9 @@
                     <p>Phone: {{user.phone}}</p>
                     <p>Email: {{user.email}}</p>
                     <p>Last Login: <em>{{lastlogin}}</em></p>
-                    <p>System Admin: {{user.admin}}</p>
+                    {{#if user.admin}}
+                    <p style="width:30%" class="d-block bg-success">System Administrator</p>
+                    {{/if}}
                 </h6>
             </div>
         </div>
