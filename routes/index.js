@@ -7,6 +7,7 @@ var authService = require("../services/auth");
 var User = require('../models/user');
 var moment = require('moment');
 var Cart = require('../models/cart');
+var Order = require('../models/order');
 
 // var csrfProtection = csrf();
 // router.use(csrfProtection);
@@ -21,7 +22,7 @@ router.get('/', function (req, res, next) {
     for (var i = 0; i < docs.length; i += chunkSize) {
       productChunks.push(docs.slice(i, i + chunkSize));
     }
-    res.render('shop/index', { title: 'Shopping Cart', products: productChunks, successMsg:successMsg,noMessages: !successMsg });
+    res.render('shop/index', { title: 'Shopping Cart', products: productChunks, successMsg: successMsg, noMessages: !successMsg });
   });
 });
 
@@ -168,29 +169,39 @@ router.get('/checkout', (req, res, next) => {
 });
 
 router.post('/checkout', (req, res, next) => {
-  if (req.session.cart) {
-    console.log(req.session.cart);
-    //return res.redirect('/shopping-cart');
+
+  if (!req.session.cart) {
+    return res.redirect('/shopping-cart');
   }
+
   var cart = new Cart(req.session.cart);
-  const stripe = require("stripe")("sk_test_jaaxtB6dn9mDaOBPAKb43a1A00AWzUss22");
+
+  var stripe = require("stripe")("sk_test_jaaxtB6dn9mDaOBPAKb43a1A00AWzUss22");
 
   stripe.charges.create({
     amount: cart.totalPrice * 100,
     currency: "usd",
-    source: req.body.stripeToken,
-    description: "Charge for test@example.com",
+    source: req.body.stripeToken, // obtained with Stripe.js
+    description: "Test Charge",
+    customer: "cus_FnbF93yLrgiE9U"
   }, function (err, charge) {
-    // asynchronously called
     if (err) {
-      req.flash('error',err.message);
-      console.log(err.message);
-      //return res.redirect('/checkout');
+      req.flash('error', err.message);
+      return res.redirect('/checkout');
     }
-      req.flash('success','Successfully bought product');
-      req.cart = null;
-      //res.redirect('/');
+    var order = new Order({
+      user: req.user,
+      cart: cart,
+      address: req.body.address,
+      name: req.body.name,
+      paymentId: charge.id
+    });
+    order.save(function (err, result) {
+      req.flash('success', 'Successfully bought product!');
+      req.session.cart = null;
+      res.redirect('/');
+    });
   });
 });
 
-  module.exports = router;
+module.exports = router;
