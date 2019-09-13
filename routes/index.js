@@ -169,21 +169,17 @@ router.get('/checkout', (req, res, next) => {
 });
 
 router.post('/checkout', (req, res, next) => {
-
   if (!req.session.cart) {
     return res.redirect('/shopping-cart');
   }
-
   var cart = new Cart(req.session.cart);
-
   var stripe = require("stripe")("sk_test_jaaxtB6dn9mDaOBPAKb43a1A00AWzUss22");
-
+  console.log(req.body.stripeToken);
   stripe.charges.create({
     amount: cart.totalPrice * 100,
     currency: "usd",
     source: req.body.stripeToken, // obtained with Stripe.js
-    description: "Test Charge",
-    customer: "cus_FnbF93yLrgiE9U"
+    description: "Video Games"
   }, function (err, charge) {
     if (err) {
       req.flash('error', err.message);

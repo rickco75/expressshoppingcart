@@ -1,43 +1,73 @@
 //const stripe = require("stripe")("sk_test_jaaxtB6dn9mDaOBPAKb43a1A00AWzUss22");
-var stripe = Stripe('pk_test_qBzpZk519CzUNHEcMAyADAbj00qJE3YDTZ');
 //Stripe.setPublishableKey('pk_test_qBzpZk519CzUNHEcMAyADAbj00qJE3YDTZ');
-
 var $form = $('#checkout-form');
+var stripe = Stripe('pk_test_qBzpZk519CzUNHEcMAyADAbj00qJE3YDTZ');
+var elements = stripe.elements();
 
-// $form.submit(function (event) {
-//     $('#charge-error').addClass('d-none');
-//     $form.find('button').prop('disabled', true);
-//     Stripe.card.createToken({
-//         number: $('#card-number').val(),
-//         cvc: $('#card-cvc').val(),
-//         exp_month: $('#card-expiry-month').val(),
-//         exp_year: $('#card-expiry-year').val(),
-//         name: $('#card-name').val()
-//     }, stripeResponseHandler);
-//     return false;
-// });
+var card = elements.create('card', {
+  style: {
+    base: {
+      iconColor: '#666EE8',
+      color: '#31325F',
+      lineHeight: '40px',
+      fontWeight: 300,
+      fontFamily: 'Helvetica Neue',
+      fontSize: '15px',
 
-// stripe.skus.list(
-//     {limit: 3},
-//     function(err, skus) {
-//       // asynchronously called
-//       console.log(skus);
-//     }
-//   );
+      '::placeholder': {
+        color: '#CFD7E0',
+      },
+    },
+  }
+});
+card.mount('#card-element');
 
-// var checkoutButton = document.querySelector('#checkout-button');
-// checkoutButton.addEventListener('click', function () {
-//   stripe.redirectToCheckout({
-//     items: [{
-//       // Define the product and SKU in the Dashboard first, and use the SKU
-//       // ID in your client-side code.
-//       sku: sku,
-//       quantity: 1
-//     }],
-//     successUrl: 'https://www.example.com/success',
-//     cancelUrl: 'https://www.example.com/cancel'
-//   });
-// });
+function setOutcome(result) {
+  var successElement = document.querySelector('.success');
+  var errorElement = document.querySelector('.error');
+  successElement.classList.remove('visible');
+  errorElement.classList.remove('visible');
+
+  if (result.token) {
+    // Use the token to create a charge or a customer
+    // https://stripe.com/docs/charges
+    successElement.querySelector('.token').textContent = result.token.id;
+    //successElement.classList.add('visible');
+    //submit the form
+    //console.log("token ID: " + result.token.id);
+    stripeTokenHandler(result.token.id);
+  } else if (result.error) {
+
+    errorElement.textContent = result.error.message;
+    errorElement.classList.add('visible');
+  }
+}
+
+card.on('change', function(event) {
+  setOutcome(event);
+});
+
+document.querySelector('form').addEventListener('submit', function(e) {
+  e.preventDefault();
+  var form = document.querySelector('form');
+  var extraDetails = {
+    name: form.querySelector('input[name=cardholder-name]').value,
+  };
+  stripe.createToken(card, extraDetails).then(setOutcome);
+});
+
+const stripeTokenHandler = (token) => {
+    // Insert the token ID into the form so it gets submitted to the server
+    const form = document.getElementById('payment-form');
+    const hiddenInput = document.createElement('input');
+    hiddenInput.setAttribute('type', 'text');
+    hiddenInput.setAttribute('name', 'stripeToken');
+    hiddenInput.setAttribute('value', token);
+    form.appendChild(hiddenInput);
+  
+    // Submit the form
+    form.submit();
+  }
 
 function stripeResponseHandler(status, response) {
     if (response.error) { // Problem!
