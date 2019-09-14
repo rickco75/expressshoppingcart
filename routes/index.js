@@ -17,7 +17,7 @@ const jwt = require("jsonwebtoken");
 /* GET product listing. */
 router.get('/', function (req, res, next) {
   var successMsg = req.flash('success')[0];
-  console.log('/ route for shop/index');
+  console.log("is user logged in? " ,res.locals.loggedIn);
   Product.find(function (err, docs) {
     var productChunks = [];
     var chunkSize = 3;
@@ -26,6 +26,16 @@ router.get('/', function (req, res, next) {
     }
     res.render('shop/index', { title: 'Shopping Cart', products: productChunks, successMsg: successMsg, noMessages: !successMsg });
   });
+});
+
+router.get('/reduce/:id', (req,res,next)=>{
+  var productId = req.params.id;
+  var cart = new Cart(req.session.cart ? req.session.cart : {});
+
+  cart.reduceByOne(productId);
+  req.session.cart = cart;
+  res.redirect('/shopping-cart');
+
 });
 
 router.get('/add-to-cart/:id', (req, res, next) => {
@@ -64,6 +74,13 @@ router.get('/user/signup', (req, res, next) => {
 router.post("/user/signup", function (req, res, next) {
   var password = authService.hashPassword(req.body.password);
   var email = req.body.email;
+  // if(req.session.oldUrl){
+  //   var oldUrl = req.session.
+  //   req.session.oldUrl = null;
+  //   res.redirect(oldUrl);
+  // } else {
+  //   res.redirect("/user/profile");
+  // }
   var user = new User({
     email: email,
     password: password,
@@ -87,7 +104,19 @@ router.post("/user/signup", function (req, res, next) {
   });
 });
 
+router.get('/user/signin', (req, res, next) => {
+  loggedinuser = res.locals.loggedIn;
+  console.log(loggedinuser);
+
+  if (loggedinuser) {
+    res.redirect('/user/profile');
+  } else {
+    res.render('user/signin');
+  }
+});
+
 router.post("/user/signin", (req, res, next) => {
+
   var email = req.body.email;
   var password = req.body.password;
   var foundUser = User.findOne({ email: email }, (err, docs) => {
@@ -106,8 +135,15 @@ router.post("/user/signin", (req, res, next) => {
       if (passwordMatch) {
         console.log('password match!')
         let token = authService.signUser(docs);
-        res.cookie("jwt", token);
-        res.redirect('/user/profile');
+        res.cookie("jwt", token);       
+        console.log("session.oldUrl",req.session.oldUrl);
+        if (req.session.oldUrl) {
+          var oldUrl = req.session.oldUrl;
+          req.session.oldUrl = null;
+          res.redirect(oldUrl);
+      } else {
+          res.redirect('/user/profile');
+      }        
       }
     }
   });
@@ -115,16 +151,26 @@ router.post("/user/signin", (req, res, next) => {
 
 router.get('/user/profile', (req, res, next) => {
   let token = req.cookies.jwt;
+  console.log("token",token);
   if (token) {
-
     try {
       authService.verifyUser(token).then(user => {
         if (user) {
-
           var foundUser = User.findOne({ email: user.email }, (err, docs) => {
             var lastlogin = moment(docs.lastLogin).format('LLL');
             foundUsers = User.find((err, docs2) => {
-              res.render('user/profile', { user: docs, users: docs2, lastlogin: lastlogin });
+              Order.find({user:docs._id},function(err,orders){
+                if (err){
+                  return res.write('Error!');
+                }
+                var cart;
+                orders.forEach(function(order){
+                  cart = new Cart(order.cart);
+                  order.items = cart.generateArray();                  
+                });
+                console.log("orders " ,orders);
+                res.render('user/profile', { user: docs, users: docs2, lastlogin: lastlogin,orders:orders });
+              });
             });
           });
         } else {
@@ -137,22 +183,14 @@ router.get('/user/profile', (req, res, next) => {
       res.render('user/signin', { message: "Your session has Expired! Please login to continue." });
     }
   }
+  else {
+    res.redirect('signin');
+  }
 });
 
 router.get("/user/logout", function (req, res, next) {
   res.cookie("jwt", "", { expires: new Date(0) });
   res.redirect("/user/signin");
-});
-
-router.get('/user/signin', (req, res, next) => {
-  loggedinuser = res.locals.loggedIn;
-  console.log(loggedinuser);
-
-  if (loggedinuser) {
-    res.redirect('/user/profile');
-  } else {
-    res.render('user/signin');
-  }
 });
 
 router.get('/shopping-cart', (req, res, next) => {
@@ -164,7 +202,7 @@ router.get('/shopping-cart', (req, res, next) => {
   res.render('shop/shopping-cart', { products: cart.generateArray(), totalPrice: cart.totalPrice });
 })
 
-router.get('/checkout', (req, res, next) => {
+router.get('/checkout', isLoggedIn, (req, res, next) => {
   var errMsg = req.flash('error')[0];
   if (!req.session.cart) {
     return res.redirect('/shopping-cart');
@@ -173,9 +211,9 @@ router.get('/checkout', (req, res, next) => {
   res.render('shop/checkout', { total: cart.totalPrice, errMsg: errMsg, noError: !errMsg });
 });
 
-router.post('/checkout', (req, res, next) => {
+router.post('/checkout', isLoggedIn, (req, res, next) => {
   let token = req.cookies.jwt;
-  let UserId = "";
+  let userId = '5d77c8bbb6d14a0c708ecd9a'; // default userId to avoid errors for order table
   if (token) {
     let decoded = jwt.decode(token, "secretkey");
     userId = decoded.UserId;
@@ -204,7 +242,11 @@ router.post('/checkout', (req, res, next) => {
       cart: cart,
       address: req.body.address,
       name: req.body.name,
-      paymentId: charge.id
+      paymentId: charge.id,
+      phone: req.body.phone,
+      city: req.body.city,
+      state: req.body.state,
+      zipcode: req.body.zipcode
     });
     console.log("Order Object: " , order);
     order.save(function (err, result) {
@@ -219,3 +261,11 @@ router.post('/checkout', (req, res, next) => {
 });
 
 module.exports = router;
+
+function isLoggedIn(req,res,next){
+  if (res.locals.loggedIn){
+    return next();
+  }
+  req.session.oldUrl = req.url;
+  res.redirect('user/signin');
+}
