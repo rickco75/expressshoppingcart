@@ -69,6 +69,7 @@ const stripeTokenHandler = (token) => {
     form.submit();
   }
 
+  // DEPRECATED V1
 function stripeResponseHandler(status, response) {
     if (response.error) { // Problem!
 

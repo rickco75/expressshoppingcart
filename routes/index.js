@@ -9,6 +9,8 @@ var moment = require('moment');
 var Cart = require('../models/cart');
 var Order = require('../models/order');
 
+const jwt = require("jsonwebtoken");
+
 // var csrfProtection = csrf();
 // router.use(csrfProtection);
 
@@ -94,6 +96,7 @@ router.post("/user/signin", (req, res, next) => {
     } else {
       // set the last login
       docs.lastLogin = Date.now();
+      req.UserId = docs._id;
       docs.save();
 
       let passwordMatch = authService.comparePasswords(
@@ -113,9 +116,11 @@ router.post("/user/signin", (req, res, next) => {
 router.get('/user/profile', (req, res, next) => {
   let token = req.cookies.jwt;
   if (token) {
+
     try {
       authService.verifyUser(token).then(user => {
         if (user) {
+
           var foundUser = User.findOne({ email: user.email }, (err, docs) => {
             var lastlogin = moment(docs.lastLogin).format('LLL');
             foundUsers = User.find((err, docs2) => {
@@ -169,6 +174,14 @@ router.get('/checkout', (req, res, next) => {
 });
 
 router.post('/checkout', (req, res, next) => {
+  let token = req.cookies.jwt;
+  let UserId = "";
+  if (token) {
+    let decoded = jwt.decode(token, "secretkey");
+    userId = decoded.UserId;
+    console.log(decoded);
+  }
+
   if (!req.session.cart) {
     return res.redirect('/shopping-cart');
   }
@@ -184,15 +197,20 @@ router.post('/checkout', (req, res, next) => {
     if (err) {
       req.flash('error', err.message);
       return res.redirect('/checkout');
-    }
+    }  
+    console.log("request.body",req.body); 
     var order = new Order({
-      user: req.user,
+      user: userId,
       cart: cart,
       address: req.body.address,
       name: req.body.name,
       paymentId: charge.id
     });
+    console.log("Order Object: " , order);
     order.save(function (err, result) {
+      if (err){
+        console.log(err);
+      }
       req.flash('success', 'Successfully bought product!');
       req.session.cart = null;
       res.redirect('/');

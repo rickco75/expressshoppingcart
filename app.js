@@ -35,8 +35,11 @@ app.use(passport.session());
 
 app.use(express.static(path.join(__dirname, 'public')));
 
+
+
 // get a global login boolean to use throughout application
 app.use((req, res, next) => {
+  res.locals.UserId = 0;
   res.locals.loggedIn = false;
   res.locals.session = req.session;
   let token = req.cookies.jwt;

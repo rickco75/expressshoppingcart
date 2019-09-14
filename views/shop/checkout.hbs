@@ -41,24 +41,28 @@
         <form action="/checkout" method="POST" id="payment-form" name="payment-form">
             <div class="group">
                 <label>
-                    <span>Name</span>
-                    <input name="cardholder-name" class="field" placeholder="Jane Doe" />
+                    <span>Billing Name</span>
+                    <input name="cardholder-name" class="field" placeholder="Cardholders Name" />
                 </label>
                 <label>
+                    <span>Name</span>
+                    <input name="name" class="field" placeholder="John doe" />
+                </label>                
+                <label>
                     <span>Phone</span>
-                    <input class="field" placeholder="(123) 456-7890" type="tel" />
+                    <input class="field" name="phone" placeholder="(123) 456-7890" type="tel" />
                 </label>
                 <label>
                     <span>City</span>
-                    <input class="field" placeholder="Atlanta" type="text" />
+                    <input class="field" name="city" placeholder="Atlanta" type="text" />
                 </label>
                 <label>
                     <span>State</span>
-                    <input class="field" placeholder="GA" type="text" />
+                    <input class="field" name="state" placeholder="GA" type="text" />
                 </label>                                
                 <label>
                     <span>Address</span>
-                    <input class="field" placeholder="1234 Cherry Tree Lane" type="text" />
+                    <input class="field" name="address" placeholder="1234 Cherry Tree Lane" type="text" />
                 </label>                
             </div>
             <div class="group">
