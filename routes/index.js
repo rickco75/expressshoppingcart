@@ -17,7 +17,7 @@ const jwt = require("jsonwebtoken");
 /* GET product listing. */
 router.get('/', function (req, res, next) {
   var successMsg = req.flash('success')[0];
-  console.log("is user logged in? " ,res.locals.loggedIn);
+  console.log("is user logged in? ", res.locals.loggedIn);
   Product.find(function (err, docs) {
     var productChunks = [];
     var chunkSize = 3;
@@ -28,7 +28,7 @@ router.get('/', function (req, res, next) {
   });
 });
 
-router.get('/reduce/:id', (req,res,next)=>{
+router.get('/reduce/:id', (req, res, next) => {
   var productId = req.params.id;
   var cart = new Cart(req.session.cart ? req.session.cart : {});
   cart.reduceByOne(productId);
@@ -36,7 +36,7 @@ router.get('/reduce/:id', (req,res,next)=>{
   res.redirect('/shopping-cart');
 });
 
-router.get('/remove/:id', (req,res,next)=>{
+router.get('/remove/:id', (req, res, next) => {
   var productId = req.params.id;
   var cart = new Cart(req.session.cart ? req.session.cart : {});
 
@@ -144,23 +144,34 @@ router.post("/user/signin", (req, res, next) => {
       if (passwordMatch) {
         console.log('password match!')
         let token = authService.signUser(docs);
-        res.cookie("jwt", token);       
-        console.log("session.oldUrl",req.session.oldUrl);
+        res.cookie("jwt", token);
+        console.log("session.oldUrl", req.session.oldUrl);
         if (req.session.oldUrl) {
           var oldUrl = req.session.oldUrl;
           req.session.oldUrl = null;
           res.redirect(oldUrl);
-      } else {
+        } else {
           res.redirect('/user/profile');
-      }        
+        }
       }
     }
   });
 })
 
+router.get('/getCharges', (req, res, next) => {
+  var stripe = require('stripe')('sk_test_jaaxtB6dn9mDaOBPAKb43a1A00AWzUss22');
+  stripe.charges.list(
+    { limit: 100 },
+    function (err, charges) {
+      res.render('charges', { charges: charges.data });
+    }
+    );
+});
+
 router.get('/user/profile', (req, res, next) => {
+  var stripe = require('stripe')('sk_test_jaaxtB6dn9mDaOBPAKb43a1A00AWzUss22');
   let token = req.cookies.jwt;
-  console.log("token",token);
+  console.log("token", token);
   if (token) {
     try {
       authService.verifyUser(token).then(user => {
@@ -168,17 +179,22 @@ router.get('/user/profile', (req, res, next) => {
           var foundUser = User.findOne({ email: user.email }, (err, docs) => {
             var lastlogin = moment(docs.lastLogin).format('LLL');
             foundUsers = User.find((err, docs2) => {
-              Order.find({user:docs._id},function(err,orders){
-                if (err){
+              Order.find({ user: docs._id }, function (err, orders) {
+                if (err) {
                   return res.write('Error!');
                 }
                 var cart;
-                orders.forEach(function(order){
+                orders.forEach(function (order) {
                   cart = new Cart(order.cart);
-                  order.items = cart.generateArray();                  
+                  order.items = cart.generateArray();
                 });
-                console.log("orders " ,orders);
-                res.render('user/profile', { user: docs, users: docs2, lastlogin: lastlogin,orders:orders });
+                console.log("orders ", orders);
+                stripe.charges.list(
+                  { limit: 100 },
+                  function (err, charges) {
+                    res.render('user/profile', { charges: charges.data, user: docs, users: docs2, lastlogin: lastlogin, orders: orders });
+                  }
+                  );                
               });
             });
           });
@@ -244,8 +260,8 @@ router.post('/checkout', isLoggedIn, (req, res, next) => {
     if (err) {
       req.flash('error', err.message);
       return res.redirect('/checkout');
-    }  
-    console.log("request.body",req.body); 
+    }
+    console.log("request.body", req.body);
     var order = new Order({
       user: userId,
       cart: cart,
@@ -257,9 +273,9 @@ router.post('/checkout', isLoggedIn, (req, res, next) => {
       state: req.body.state,
       zipcode: req.body.zipcode
     });
-    console.log("Order Object: " , order);
+    console.log("Order Object: ", order);
     order.save(function (err, result) {
-      if (err){
+      if (err) {
         console.log(err);
       }
       req.flash('success', 'Successfully bought product!');
@@ -269,10 +285,39 @@ router.post('/checkout', isLoggedIn, (req, res, next) => {
   });
 });
 
+// retrieve a list of all orders from stripe
+router.get('/orders', (req, res, next) => {
+  var stripe = require('stripe')('sk_test_jaaxtB6dn9mDaOBPAKb43a1A00AWzUss22');
+  var orderList;
+  stripe.orders.list(
+    { limit: 3 },
+    function (err, orders) {
+      orderList = orders;
+      console.log("Order List: ", orderList);
+      // asynchronously called
+    }
+  );
+  res.send(orderList);
+})
+
+router.get('/getTransactions', (req, res, next) => {
+  var stripe = require('stripe')('sk_test_jaaxtB6dn9mDaOBPAKb43a1A00AWzUss22');
+  var transactionList;
+  stripe.issuing.transactions.list(
+    { limit: 30 },
+    function (err, transactions) {
+      transactionList = transactions;
+      console.log("transactions: ", transactions);
+    }
+  );
+  res.send("transactionlist: " + transactionList);
+
+});
+
 module.exports = router;
 
-function isLoggedIn(req,res,next){
-  if (res.locals.loggedIn){
+function isLoggedIn(req, res, next) {
+  if (res.locals.loggedIn) {
     return next();
   }
   req.session.oldUrl = req.url;

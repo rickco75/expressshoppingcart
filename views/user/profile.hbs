@@ -29,6 +29,9 @@
             <div class="card-body">
                 <h4 class="card-title font-weight-bold">
                     {{user.firstName}} {{user.lastName}}
+                    {{#if user.admin}}
+                     (System Administrator)
+                    {{/if}}
                 </h4>
                 <h6 class="card-subtitle mb-2 font-weight-bold">Username: {{user.email}}</h6>
                 <h6 class="card-text font-weight-bold">
@@ -37,53 +40,20 @@
                     <p>Phone: {{user.phone}}</p>
                     <p>Email: {{user.email}}</p>
                     <p>Last Login: <em>{{lastlogin}}</em></p>
-                    {{#if user.admin}}
-                    <p style="width:30%" class="d-block bg-success">System Administrator</p>
-                    {{/if}}
                 </h6>
             </div>
         </div>
     </div>
 </div>
 {{#if user.admin}}
-<div class="row">
-    <div class="col-md-12">
-        <div class="card">
-            <div class="card-body">
-                <h4 class="card-title">
-                    <a href="#collapseOrders" role="button" aria-expanded="false" aria-controls="collapseOrders" data-toggle="collapse" class="btn btn-primary">Manage Orders</a>
-                </h4>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="overflow-auto row collapse" id="collapseOrders">
-    <div class="col-md-8 col-md-offset-2 overflow-auto">
-        {{#each orders}}
-        <div class="card">
-            <div class="card-body">
-                <ul class="list-group">
-                    {{#each this.items}}
-                    <li class="list-group-item">                        
-                        {{this.item.title}} | {{this.qty}} Unit(s)
-                        <span class="badge badge-secondary float-right">${{this.price}}</span>
-                    </li>
-                    {{/each}}
-                </ul>
-            </div>
-            <div class="card-footer"><strong>Total Price: ${{this.cart.totalPrice}}</strong></div>
-        </div>
-        {{/each}}
-    </div>
-</div>
-
 
 <div class="row">
     <div class="col-md-12">
         <div class="card">
             <div class="card-body">
                 <h4 class="card-title">
-                    <a href="#collapseUsers" role="button" aria-expanded="false" aria-controls="collapseUsers" data-toggle="collapse" class="btn btn-primary">Manage Users</a>
+                    <a href="#collapseUsers" role="button" aria-expanded="false" aria-controls="collapseUsers"
+                        data-toggle="collapse" class="btn btn-primary">Manage Users</a>
                 </h4>
             </div>
         </div>
@@ -127,4 +97,92 @@
         </div>
     </div>
 </div>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-body">
+                <h4 class="card-title">
+                    <a href="#collapseOrders" role="button" aria-expanded="false" aria-controls="collapseOrders"
+                        data-toggle="collapse" class="btn btn-primary">Manage Orders</a>
+                </h4>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="overflow-auto row collapse" id="collapseOrders">
+    <div class="col-md-8 col-md-offset-2 overflow-auto">
+        {{#each orders}}
+        <div class="card">
+            <div class="card-body">
+                <ul class="list-group">
+                    {{#each this.items}}
+                    <li class="list-group-item">
+                        {{this.item.title}} | {{this.qty}} Unit(s)
+                        <span class="badge badge-secondary float-right">${{this.price}}</span>
+                    </li>
+                    {{/each}}
+                </ul>
+            </div>
+            <div class="card-footer">
+                <strong>Total Price: ${{this.cart.totalPrice}} | Order ID: {{this.paymentId}}</strong>
+            </div>
+        </div>
+        {{/each}}
+    </div>
+</div>
+
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-body">
+                <h4 class="card-title">
+                    <a href="#collapseCharges" role="button" aria-expanded="false" aria-controls="collapseCharges"
+                        data-toggle="collapse" class="btn btn-primary">Manage Charges</a>
+                </h4>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row collapse" id="collapseCharges">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-body">
+                <table id="chargestable" class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Amount</th>
+                            <th>Description</th>
+                            <th>Status</th>
+                            <th>Brand</th>
+                            <th>Exp</th>
+                            <th>Last 4</th>
+                            <th>Zipcode</th>
+                            <th>Receipt</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {{#each charges}}
+                        <tr>
+                            <th>{{this.source.name}}</th>
+                            <td>{{this.amount}}</td>
+                            <td>{{this.description}}</td>
+                            <td>{{this.status}}</td>
+                            <td>{{this.source.brand}}</td>
+                            <td>{{this.source.exp_month}}/{{this.source.exp_year}}</td>
+                            <td>{{this.source.last4}}</td>
+                            <td>{{this.source.address_zip}}</td>
+                            <td><a href="{{this.receipt_url}}" target="_blank">view</a></td>
+                        </tr>
+                        {{/each}}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+
 {{/if}}

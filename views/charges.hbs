@@ -1,0 +1,66 @@
+{{!-- {{#each charges}}
+    <p> Charge Id: {{this.id}} </p>
+    <p> Object: {{this.object}} </p>
+    <p> Amount: {{this.amount}} </p>
+    <p> Transaction Id: {{this.balance_transaction}} </p>
+    <p> Description: {{this.description}} </p>
+    <p> Receipt URL: {{this.receipt_url}}</p>
+    <p> Status: {{this.status}}</p>
+    <p>  Brand: {{this.source.brand}}</p>
+    <p>  Name: {{this.source.name}}</p>
+    <p> Zipcode: {{this.source.address_zip}}</p>
+    <p> Last4: {{this.source.last4}}</p>
+    <p> Expiration: {{this.source.exp_month}}/{{this.source.exp_year}}</p>
+    <hr>
+{{/each}} --}}
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-body">
+                <h4 class="card-title">
+                    <a href="#collapseCharges" role="button" aria-expanded="false" aria-controls="collapseCharges"
+                        data-toggle="collapse" class="btn btn-primary">Manage Charges</a>
+                </h4>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row collapse" id="collapseCharges">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-body">
+                <table id="chargestable" class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Amount</th>
+                            <th>Description</th>
+                            <th>Status</th>
+                            <th>Brand</th>
+                            <th>Exp</th>
+                            <th>Last 4</th>
+                            <th>Zipcode</th>
+                            <th>Receipt</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {{#each charges}}
+                        <tr>
+                            <th>{{this.source.name}}</th>
+                            <td>{{this.amount}}</td>
+                            <td>{{this.description}}</td>
+                            <td>{{this.status}}</td>
+                            <td>{{this.source.brand}}</td>
+                            <td>{{this.source.exp_month}}/{{this.source.exp_year}}</td>
+                            <td>{{this.source.last4}}</td>
+                            <td>{{this.source.address_zip}}</td>
+                            <td><a href="{{this.receipt_url}}" target="_blank">view</a></td>
+                        </tr>
+                        {{/each}}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
