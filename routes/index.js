@@ -158,16 +158,6 @@ router.post("/user/signin", (req, res, next) => {
   });
 })
 
-router.get('/getCharges', (req, res, next) => {
-  var stripe = require('stripe')('sk_test_jaaxtB6dn9mDaOBPAKb43a1A00AWzUss22');
-  stripe.charges.list(
-    { limit: 100 },
-    function (err, charges) {
-      res.render('charges', { charges: charges.data });
-    }
-    );
-});
-
 router.get('/user/profile', (req, res, next) => {
   var stripe = require('stripe')('sk_test_jaaxtB6dn9mDaOBPAKb43a1A00AWzUss22');
   let token = req.cookies.jwt;
@@ -188,13 +178,13 @@ router.get('/user/profile', (req, res, next) => {
                   cart = new Cart(order.cart);
                   order.items = cart.generateArray();
                 });
-                console.log("orders ", orders);
+                //console.log("orders ", orders);
                 stripe.charges.list(
                   { limit: 100 },
                   function (err, charges) {
                     res.render('user/profile', { charges: charges.data, user: docs, users: docs2, lastlogin: lastlogin, orders: orders });
                   }
-                  );                
+                );
               });
             });
           });
@@ -227,6 +217,23 @@ router.get('/shopping-cart', (req, res, next) => {
   res.render('shop/shopping-cart', { products: cart.generateArray(), totalPrice: cart.totalPrice });
 })
 
+router.get('/placeorder', (req, res, next) => {
+  res.render('shop/placeorder');
+});
+
+router.post('/placeorder', (req, res, next) => {
+  let token = req.body.stripeToken;
+
+  var stripe = require("stripe")("sk_test_jaaxtB6dn9mDaOBPAKb43a1A00AWzUss22");
+  console.log("Stripe Token: " + token);
+
+  stripe.orders.pay('or_1FJPaEG1LlRFqSBCzkKNNlBV', {
+    source: token,
+  })
+
+  res.send("Stripe Token: " + token);
+});
+
 router.get('/checkout', isLoggedIn, (req, res, next) => {
   var errMsg = req.flash('error')[0];
   if (!req.session.cart) {
@@ -235,6 +242,9 @@ router.get('/checkout', isLoggedIn, (req, res, next) => {
   var cart = new Cart(req.session.cart);
   res.render('shop/checkout', { total: cart.totalPrice, errMsg: errMsg, noError: !errMsg });
 });
+
+
+
 
 router.post('/checkout', isLoggedIn, (req, res, next) => {
   let token = req.cookies.jwt;
@@ -278,11 +288,119 @@ router.post('/checkout', isLoggedIn, (req, res, next) => {
       if (err) {
         console.log(err);
       }
+
       req.flash('success', 'Successfully bought product!');
       req.session.cart = null;
       res.redirect('/');
     });
   });
+});
+
+router.get('/createSku', (req, res, next) => {
+  const stripe = require('stripe')('sk_test_Ax3fBL1nJ24mAZIV6tD5r2Xu00PDVgG5PW');
+  try {
+    (async () => {
+      const sku1 = await stripe.skus.create({
+        currency: 'usd',
+        inventory: { 'type': 'finite', 'quantity': 500 },
+        price: 1500,
+        product: 'prod_Fp34BPn49jpitz',
+        attributes: { 'year': '2019', 'description': 'sku1', 'name': 'sku1' },
+      });
+      const sku2 = await stripe.skus.create({
+        currency: 'usd',
+        inventory: { 'type': 'finite', 'quantity': 400 },
+        price: 1500,
+        product: 'prod_Fp34BPn49jpitz',
+        attributes: { 'year': '2018', 'description': 'sku1', 'name': 'sku2' },
+      });
+    })();
+
+  } catch (err) {
+    console.log(err);
+  }
+  res.send('skus created');
+});
+
+router.get('/listproducts', (req, res, next) => {
+  var stripe = require('stripe')('sk_test_jaaxtB6dn9mDaOBPAKb43a1A00AWzUss22');
+
+  try {
+    stripe.products.list(
+      { limit: 10 },
+      function (err, products) {
+        // asynchronously called
+        console.log(products.data);
+        return res.render('shop/showproducts', { products: products.data });
+      }
+    );
+  } catch (err) {
+    console.log('error: ', err);
+    return res.send(err);
+
+  }
+});
+
+router.get('/showproduct/:id', (req, res, next) => {
+  var productId = req.params.id;
+  var stripe = require('stripe')('sk_test_jaaxtB6dn9mDaOBPAKb43a1A00AWzUss22');
+  try {
+    stripe.products.retrieve(
+      productId,
+      function (err, product) {
+        // asynchronously called
+        var images = product.images;
+        var dimensions = product.package_dimensions;
+        console.log(product);
+        return res.render('shop/showproduct', { product: product, images: images, dimensions:dimensions });
+      }
+    );
+  } catch (err) {
+    return res.send(err);
+  }
+})
+
+router.get('/createProduct', (req, res, next) => {
+  const stripe = require('stripe')('sk_test_Ax3fBL1nJ24mAZIV6tD5r2Xu00PDVgG5PW');
+
+  const product = stripe.products.create({
+    name: 'Limited Edition Video Game',
+    type: 'good',
+    attributes: ['name', 'description', 'year'],
+    description: 'Street Fighter Series Classic',
+  });
+  console.log(product);
+  res.send('product created');
+});
+
+router.get('/createOrder', (req, res, next) => {
+  const stripe = require("stripe")("sk_test_jaaxtB6dn9mDaOBPAKb43a1A00AWzUss22");
+  stripe.orders.create({
+    currency: 'usd',
+    items: [
+      {
+        type: 'sku',
+        parent: 'sku_FogKUU7ekrvkEm'
+      }
+    ],
+    shipping: {
+      name: 'Josh bergs',
+      address: {
+        line1: '4344 bay Street',
+        city: 'Atlanta',
+        state: 'GA',
+        country: 'US',
+        postal_code: '30338'
+      }
+    },
+    email: 'josh.rosen@example.com'
+  }, function (err, order) {
+    console.log(order);
+    // asynchronously called
+  });
+  var timeStamp = Date.now();
+  var timestamp2 = moment(timeStamp).format('LLL');
+  res.send('order created at ' + timestamp2);
 });
 
 // retrieve a list of all orders from stripe

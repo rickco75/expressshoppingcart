@@ -1,0 +1,48 @@
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-body">
+                <h4 class="card-title">
+                    <a href="#collapseProducts" role="button" aria-expanded="false" aria-controls="collapseProducts"
+                        data-toggle="collapse" class="btn btn-primary">Products (Show/Hide)</a>
+                </h4>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row show" id="collapseProducts">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-body">
+                <table id="productstable" class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Description</th>
+                            <th>Caption</th>
+                            <th>Id</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {{#each products}}
+                        <tr>
+                            <td>{{this.name}}</td>
+                            <td>{{this.description}}</td>
+                            <td>{{this.caption}}</td>
+                            <td><a title="click here to view product" href="/showproduct/{{this.id}}">{{this.id}}</a></td>
+                        </tr>
+                        {{/each}}
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <th>Name</th>
+                            <th>Description</th>
+                            <th>Caption</th>
+                            <th>Id</th>
+                        </tr>
+                    </tfoot>                    
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

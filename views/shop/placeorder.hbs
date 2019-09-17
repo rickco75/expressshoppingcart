@@ -33,12 +33,12 @@
 </style>
 <div class="row">
     <div class="col-sm-6 col-md-4 col-md-offset-4 col-sm-offset-3">
-        <h1>Checkout</h1>
-        <h4>Your Total: ${{total}}</h4>
+        <h1>Place Order</h1>
+        {{!-- <h4>Your Total: ${{total}}</h4>
         <div id="charge-error" class="alert alert-danger {{#if noError}}d-none{{/if}}">
             {{errMsg}}
-        </div>
-        <form action="/checkout" method="POST" id="payment-form" name="payment-form">
+        </div> --}}
+        <form action="/placeorder" method="POST" id="order-form" name="order-form">
             <div class="group">
                 <label>
                     <span>Billing Name</span>
@@ -75,7 +75,7 @@
                     <div id="card-element" class="field"></div>
                 </label>
             </div>
-            <button type="submit">Pay ${{total}}</button>
+            <button type="submit">Create Order</button>
             <div class="outcome d-none">
                 <div class="error"></div>
                 <div class="success d-none">
@@ -87,4 +87,4 @@
     </div>
 </div>
 <script src="https://js.stripe.com/v3/" type="text/javascript"></script>
-<script type="text/javascript" src="javascripts/checkout.js"></script>
+<script type="text/javascript" src="javascripts/placeorder.js"></script>
