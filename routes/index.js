@@ -327,24 +327,33 @@ router.get('/listproducts', (req, res, next) => {
   }
 });
 
-// STRIPE: CREATE SKU 
-router.get('/createSku', (req, res, next) => {
+// STRIPE: CREATE SKU POST
+router.post('/createSku', (req, res, next) => {
   const stripe = require('stripe')('sk_test_jaaxtB6dn9mDaOBPAKb43a1A00AWzUss22');
+  var productId = req.body.productId;
+  var price = req.body.price;
+  var image = req.body.image;
+  var name = req.body.name;
+  var type = req.body.type;
+  var year = req.body.year;
+
+  console.log(req.body);
+  //return res.send('testing');
   try {
     (async () => {
       const sku1 = await stripe.skus.create({
         currency: 'usd',
         inventory: { 'type': 'finite', 'quantity': 500 },
-        price: 65.00,
-        product: 'prod_FogKwaH2pmtqQI',
-        image: '',
-        attributes: { 'year': '2018', 'name': 'Download','type':'downloadable' },
+        price: price,
+        product: productId,
+        image: image,
+        attributes: { 'year': year, 'name': name, 'type':type },
       });
     })();
   } catch (err) {
     console.log(err);
   }
-  res.send('skus created');
+  res.redirect('showproduct/' + productId);
 });
 
 // STRIPE: SHOW INDIVIDUAL PRODUCT WITH SKUS
@@ -396,17 +405,19 @@ router.post('/createProduct', (req, res, next) => {
 router.post('/updateProduct',(req,res,next)=>{
   var stripe = require('stripe')('sk_test_jaaxtB6dn9mDaOBPAKb43a1A00AWzUss22');
   var productId = req.body.productId;
+  console.log("images",req.body.images);
   stripe.products.update(
     productId,
     {
       metadata: {order_id: '6735'},
       description: req.body.description,
-      caption: req.body.caption
+      caption: req.body.caption,
+      images: [req.body.images]
     },
 
     function(err, product) {
       console.log(product);
-      return   res.redirect('/showproduct/' + productId); 
+      return res.redirect('/showproduct/' + productId); 
       // asynchronously called
     }
   ); 

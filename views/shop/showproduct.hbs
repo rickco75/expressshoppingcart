@@ -1,17 +1,22 @@
 <div class="card">
     <form action="/updateProduct" method="POST">
-    <ul class="list-group list-group-flush">
-        <li class="list-group-item">
-            <h4 class="font-weight-bold">{{product.name}}</h4>
-        </li>
-        <li class="list-group-item"><span class="font-weight-bold">Description: </span><br> <textarea name="description" cols="40" rows="4" id="description">{{product.description}}</textarea>></li>
-        <li class="list-group-item"><span class="font-weight-bold">Caption: </span> <input type="text" name="caption" id="caption" value="{{product.caption}}"></li>
-        <li class="list-group-item"><span class="font-weight-bold">Dimensions: </span>
-            {{#each dimensions}} {{this}} x {{/each}}</li>
-        <li class="list-group-item"><span class="font-weight-bold">Product Id: </span> {{product.id}}</li>
-        <li class="list-group-item"><button type="submit">Update</button></li>
-        <input type="hidden" value="{{product.id}}" name="productId">
-    </ul>
+        <ul class="list-group list-group-flush">
+            <li class="list-group-item">
+                <h4 class="font-weight-bold">{{product.name}}</h4>
+            </li>
+            <li class="list-group-item"><span class="font-weight-bold">Description: </span><br> <textarea
+                    name="description" cols="40" rows="4" id="description">{{product.description}}</textarea>></li>
+            <li class="list-group-item"><span class="font-weight-bold">Caption: </span> <input type="text"
+                    name="caption" id="caption" value="{{product.caption}}"></li>
+            <li class="list-group-item"><span class="font-weight-bold">Dimensions: </span>
+                {{#each dimensions}} {{this}} x {{/each}}</li>
+            <li class="list-group-item"><span class="font-weight-bold">Image Url's: </span> <input type="text"
+                    name="images" placeholder="separate images with a comma" value="{{product.images}}"
+                    style="width:350px;" id="images"></li>
+            <li class="list-group-item"><span class="font-weight-bold">Product Id: </span> {{product.id}}</li>
+            <li class="list-group-item"><button type="submit">Update</button></li>
+            <input type="hidden" value="{{product.id}}" name="productId">
+        </ul>
     </form>
 </div>
 {{#each images}}
@@ -20,6 +25,62 @@
 <hr>
 <a href="/listproducts">return back to product list</a>
 <hr>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-body">
+                <h4 class="card-title">
+                    <a href="#collapseCreateSku" role="button" aria-expanded="false" aria-controls="collapseCreateSku"
+                        data-toggle="collapse" class="btn btn-primary">Create
+                        Sku (Show/Hide)</a>
+                </h4>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row collapse" id="collapseCreateSku">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-body">
+                <form action="/createSku" method="POST">
+                    <div class="form-group">
+                        <label for="name" class="col-sm-2 col-form-label">Name</label>
+                        <div class="col-sm-10">
+                            <input type="text" name="name" class="form-control" id="name" placeholder="Special Edition">
+                        </div>
+                        <label for="year" class="col-sm-2 col-form-label">Year</label>
+                        <div class="col-sm-10">
+                            <input type="text" name="year" class="form-control" id="year" placeholder="2019">
+                        </div>               
+                        <label for="type" class="col-sm-2 col-form-label">Type</label>
+                        <div class="col-sm-10">
+                            <input type="text" name="type" class="form-control" id="type" placeholder="i.e. Download">
+                        </div>                                 
+                        <label for="price" class="col-sm-2 col-form-label">Price</label>
+                        <div class="col-sm-10">
+                            <input type="text" name="price" class="form-control" id="price" placeholder="ex: 60.00">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="type" class="col-sm-6 col-form-label">Image</label>
+                        <div class="col-sm-10">
+                            <input style="width:371px;height:40px;" type="text" name="image" id="image"
+                                placeholder="https://www.example.com/myimage.jpg">
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="col-sm-10 offset-sm-1">
+                            <button style="width:150px;" type="submit" class="btn btn-primary btn-sm">Create Sku</button>
+                        </div>
+                        <input type="hidden" name="productId" id="productId" value="{{product.id}}">
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
 <h4>Skus</h4>
 {{#each skus}}
 <div class="card">
@@ -31,11 +92,11 @@
         </li>
         <li class="list-group-item"><span class="font-weight-bold">Price: </span> ${{this.price}}</li>
         <li class="list-group-item"><span class="font-weight-bold">Attributes: </span>
-        {{#each this.attributes}}
+            {{#each this.attributes}}
             {{this}}
-        {{/each}}
+            {{/each}}
         </li>
-        <li class="list-group-item"><span class="font-weight-bold">Sku: </span> {{this.id}}</li>      
+        <li class="list-group-item"><span class="font-weight-bold">Sku: </span> {{this.id}}</li>
         <li class="list-group-item"><span class="font-weight-bold">Product: </span><a
                 href="/showproduct/{{this.product}}">{{this.product}}</a> </li>
     </ul>
