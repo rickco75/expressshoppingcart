@@ -379,17 +379,37 @@ router.get('/showproduct/:id', (req, res, next) => {
 })
 
 // STRIPE: CREATE PRODUCT
-router.get('/createProduct', (req, res, next) => {
-  const stripe = require('stripe')('sk_test_Ax3fBL1nJ24mAZIV6tD5r2Xu00PDVgG5PW');
-
+router.post('/createProduct', (req, res, next) => {
+  const stripe = require('stripe')('sk_test_jaaxtB6dn9mDaOBPAKb43a1A00AWzUss22');
+  console.log(req.body);
   const product = stripe.products.create({
-    name: 'Limited Edition Video Game',
-    type: 'good',
-    attributes: ['name', 'description', 'year'],
-    description: 'Street Fighter Series Classic',
+    name: req.body.name,
+    type: req.body.type,
+    attributes: ['name','description']//,
+   // description: req.body.description,
   });
   console.log(product);
-  res.send('product created');
+  res.redirect('listproducts');
+});
+
+// STRIPE: UPDATE PRODUCT
+router.post('/updateProduct',(req,res,next)=>{
+  var stripe = require('stripe')('sk_test_jaaxtB6dn9mDaOBPAKb43a1A00AWzUss22');
+  var productId = req.body.productId;
+  stripe.products.update(
+    productId,
+    {
+      metadata: {order_id: '6735'},
+      description: req.body.description,
+      caption: req.body.caption
+    },
+
+    function(err, product) {
+      console.log(product);
+      return   res.redirect('/showproduct/' + productId); 
+      // asynchronously called
+    }
+  ); 
 });
 
 // STRIPE: CREATE ORDER 

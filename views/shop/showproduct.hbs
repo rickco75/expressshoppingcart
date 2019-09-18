@@ -1,14 +1,18 @@
 <div class="card">
+    <form action="/updateProduct" method="POST">
     <ul class="list-group list-group-flush">
         <li class="list-group-item">
             <h4 class="font-weight-bold">{{product.name}}</h4>
         </li>
-        <li class="list-group-item"><span class="font-weight-bold">Desc: </span> {{product.description}}</li>
-        <li class="list-group-item"><span class="font-weight-bold">Caption: </span> {{product.caption}}</li>
+        <li class="list-group-item"><span class="font-weight-bold">Description: </span><br> <textarea name="description" cols="40" rows="4" id="description">{{product.description}}</textarea>></li>
+        <li class="list-group-item"><span class="font-weight-bold">Caption: </span> <input type="text" name="caption" id="caption" value="{{product.caption}}"></li>
         <li class="list-group-item"><span class="font-weight-bold">Dimensions: </span>
             {{#each dimensions}} {{this}} x {{/each}}</li>
         <li class="list-group-item"><span class="font-weight-bold">Product Id: </span> {{product.id}}</li>
+        <li class="list-group-item"><button type="submit">Update</button></li>
+        <input type="hidden" value="{{product.id}}" name="productId">
     </ul>
+    </form>
 </div>
 {{#each images}}
 <img style="width:200px;height:200px;" src="{{this}}" />
