@@ -14,7 +14,7 @@ const jwt = require("jsonwebtoken");
 // var csrfProtection = csrf();
 // router.use(csrfProtection);
 
-/* GET product listing. */
+// SHOP GET MAIN PRODUCTS PAGE
 router.get('/', function (req, res, next) {
   var successMsg = req.flash('success')[0];
   console.log("is user logged in? ", res.locals.loggedIn);
@@ -28,6 +28,7 @@ router.get('/', function (req, res, next) {
   });
 });
 
+// SHOP: REDUCE ITEM BY ONE SHOPPING CART
 router.get('/reduce/:id', (req, res, next) => {
   var productId = req.params.id;
   var cart = new Cart(req.session.cart ? req.session.cart : {});
@@ -36,6 +37,7 @@ router.get('/reduce/:id', (req, res, next) => {
   res.redirect('/shopping-cart');
 });
 
+// SHOP: REMOVE ITEM FROM CART
 router.get('/remove/:id', (req, res, next) => {
   var productId = req.params.id;
   var cart = new Cart(req.session.cart ? req.session.cart : {});
@@ -46,7 +48,7 @@ router.get('/remove/:id', (req, res, next) => {
 
 });
 
-
+// SHOP: ADD PRODUCT TO CART 
 router.get('/add-to-cart/:id', (req, res, next) => {
   var productId = req.params.id;
   var cart = new Cart(req.session.cart ? req.session.cart : {});
@@ -61,6 +63,7 @@ router.get('/add-to-cart/:id', (req, res, next) => {
   });
 });
 
+// USER DELETE USER/:ID
 router.delete('/user/delete/:id', (req, res, next) => {
   let userId = req.params.id;
   User.deleteOne({ _id: userId }, (err) => {
@@ -69,7 +72,7 @@ router.delete('/user/delete/:id', (req, res, next) => {
   res.redirect('/user/profile');
 });
 
-
+// USER GET SIGNUP
 router.get('/user/signup', (req, res, next) => {
   //var messages = req.flash('error');
   console.log(res.locals.loggedIn);
@@ -80,6 +83,7 @@ router.get('/user/signup', (req, res, next) => {
   }
 });
 
+// USER: POST SIGNUP
 router.post("/user/signup", function (req, res, next) {
   var password = authService.hashPassword(req.body.password);
   var email = req.body.email;
@@ -113,6 +117,7 @@ router.post("/user/signup", function (req, res, next) {
   });
 });
 
+// USER: GET SIGNIN
 router.get('/user/signin', (req, res, next) => {
   loggedinuser = res.locals.loggedIn;
   console.log(loggedinuser);
@@ -124,6 +129,7 @@ router.get('/user/signin', (req, res, next) => {
   }
 });
 
+// USER: POST SIGNIN
 router.post("/user/signin", (req, res, next) => {
 
   var email = req.body.email;
@@ -158,6 +164,7 @@ router.post("/user/signin", (req, res, next) => {
   });
 })
 
+// USER: GET PROFILE
 router.get('/user/profile', (req, res, next) => {
   var stripe = require('stripe')('sk_test_jaaxtB6dn9mDaOBPAKb43a1A00AWzUss22');
   let token = req.cookies.jwt;
@@ -203,11 +210,13 @@ router.get('/user/profile', (req, res, next) => {
   }
 });
 
+// USERS: LOGOUT
 router.get("/user/logout", function (req, res, next) {
   res.cookie("jwt", "", { expires: new Date(0) });
   res.redirect("/user/signin");
 });
 
+// SHOP: VIEW SHOPPING CART
 router.get('/shopping-cart', (req, res, next) => {
   if (!req.session.cart) {
     return res.render('shop/shopping-cart', { products: null })
@@ -217,10 +226,12 @@ router.get('/shopping-cart', (req, res, next) => {
   res.render('shop/shopping-cart', { products: cart.generateArray(), totalPrice: cart.totalPrice });
 })
 
+// SHOP GET PLACE ORDER VIA STRIPE
 router.get('/placeorder', (req, res, next) => {
   res.render('shop/placeorder');
 });
 
+// STRIPE: PAY FOR ORDER
 router.post('/placeorder', (req, res, next) => {
   let token = req.body.stripeToken;
 
@@ -234,6 +245,7 @@ router.post('/placeorder', (req, res, next) => {
   res.send("Stripe Token: " + token);
 });
 
+// SHOP: GET CHECKOUT 
 router.get('/checkout', isLoggedIn, (req, res, next) => {
   var errMsg = req.flash('error')[0];
   if (!req.session.cart) {
@@ -244,8 +256,7 @@ router.get('/checkout', isLoggedIn, (req, res, next) => {
 });
 
 
-
-
+// SHOP: POST CHECKOUT
 router.post('/checkout', isLoggedIn, (req, res, next) => {
   let token = req.cookies.jwt;
   let userId = '5d77c8bbb6d14a0c708ecd9a'; // default userId to avoid errors for order table
@@ -296,32 +307,7 @@ router.post('/checkout', isLoggedIn, (req, res, next) => {
   });
 });
 
-router.get('/createSku', (req, res, next) => {
-  const stripe = require('stripe')('sk_test_Ax3fBL1nJ24mAZIV6tD5r2Xu00PDVgG5PW');
-  try {
-    (async () => {
-      const sku1 = await stripe.skus.create({
-        currency: 'usd',
-        inventory: { 'type': 'finite', 'quantity': 500 },
-        price: 1500,
-        product: 'prod_Fp34BPn49jpitz',
-        attributes: { 'year': '2019', 'description': 'sku1', 'name': 'sku1' },
-      });
-      const sku2 = await stripe.skus.create({
-        currency: 'usd',
-        inventory: { 'type': 'finite', 'quantity': 400 },
-        price: 1500,
-        product: 'prod_Fp34BPn49jpitz',
-        attributes: { 'year': '2018', 'description': 'sku1', 'name': 'sku2' },
-      });
-    })();
-
-  } catch (err) {
-    console.log(err);
-  }
-  res.send('skus created');
-});
-
+// STRIPE: LIST PRODUCTS
 router.get('/listproducts', (req, res, next) => {
   var stripe = require('stripe')('sk_test_jaaxtB6dn9mDaOBPAKb43a1A00AWzUss22');
 
@@ -341,25 +327,58 @@ router.get('/listproducts', (req, res, next) => {
   }
 });
 
+// STRIPE: CREATE SKU 
+router.get('/createSku', (req, res, next) => {
+  const stripe = require('stripe')('sk_test_jaaxtB6dn9mDaOBPAKb43a1A00AWzUss22');
+  try {
+    (async () => {
+      const sku1 = await stripe.skus.create({
+        currency: 'usd',
+        inventory: { 'type': 'finite', 'quantity': 500 },
+        price: 65.00,
+        product: 'prod_FogKwaH2pmtqQI',
+        image: '',
+        attributes: { 'year': '2018', 'name': 'Download','type':'downloadable' },
+      });
+    })();
+  } catch (err) {
+    console.log(err);
+  }
+  res.send('skus created');
+});
+
+// STRIPE: SHOW INDIVIDUAL PRODUCT WITH SKUS
 router.get('/showproduct/:id', (req, res, next) => {
   var productId = req.params.id;
   var stripe = require('stripe')('sk_test_jaaxtB6dn9mDaOBPAKb43a1A00AWzUss22');
-  try {
     stripe.products.retrieve(
       productId,
       function (err, product) {
         // asynchronously called
         var images = product.images;
         var dimensions = product.package_dimensions;
-        console.log(product);
-        return res.render('shop/showproduct', { product: product, images: images, dimensions:dimensions });
+        //console.log(product);
+        stripe.skus.list(
+          {limit:100,product:productId},
+          function(err, skus) {
+            // asynchronously called
+            //console.log("skus: " + skus.data);
+            for (i=0;i < skus.data.length;i++){
+             // console.log(skus.data[i].product);
+              if (skus.data[i].product == productId){
+                console.log(skus.data[i]);
+              }
+            }
+            return res.render('shop/showproduct', {skus:skus.data, product: product, images: images, dimensions:dimensions });
+          }
+        );        
+        
+        
       }
     );
-  } catch (err) {
-    return res.send(err);
-  }
 })
 
+// STRIPE: CREATE PRODUCT
 router.get('/createProduct', (req, res, next) => {
   const stripe = require('stripe')('sk_test_Ax3fBL1nJ24mAZIV6tD5r2Xu00PDVgG5PW');
 
@@ -373,6 +392,7 @@ router.get('/createProduct', (req, res, next) => {
   res.send('product created');
 });
 
+// STRIPE: CREATE ORDER 
 router.get('/createOrder', (req, res, next) => {
   const stripe = require("stripe")("sk_test_jaaxtB6dn9mDaOBPAKb43a1A00AWzUss22");
   stripe.orders.create({
@@ -403,7 +423,7 @@ router.get('/createOrder', (req, res, next) => {
   res.send('order created at ' + timestamp2);
 });
 
-// retrieve a list of all orders from stripe
+// STRIPE: GET ALL ORDERS
 router.get('/orders', (req, res, next) => {
   var stripe = require('stripe')('sk_test_jaaxtB6dn9mDaOBPAKb43a1A00AWzUss22');
   var orderList;
@@ -418,6 +438,7 @@ router.get('/orders', (req, res, next) => {
   res.send(orderList);
 })
 
+// STRIPE: GET ALL TRANSACTIONS
 router.get('/getTransactions', (req, res, next) => {
   var stripe = require('stripe')('sk_test_jaaxtB6dn9mDaOBPAKb43a1A00AWzUss22');
   var transactionList;

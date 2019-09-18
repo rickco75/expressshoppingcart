@@ -1,16 +1,39 @@
 <div class="card">
-  <ul class="list-group list-group-flush">
-    <li class="list-group-item"><span class="font-weight-bold">Name: </span>{{product.name}}</li>
-    <li class="list-group-item"><span class="font-weight-bold">Desc: </span> {{product.description}}</li>
-    <li class="list-group-item"><span class="font-weight-bold">Caption: </span> {{product.caption}}</li>
-    <li class="list-group-item"><span class="font-weight-bold">Dimensions: </span> 
-    {{#each dimensions}} {{this}} x {{/each}}</li>    
-    <li class="list-group-item"><span class="font-weight-bold">Product Id: </span> {{product.id}}</li>    
-  </ul>
+    <ul class="list-group list-group-flush">
+        <li class="list-group-item">
+            <h4 class="font-weight-bold">{{product.name}}</h4>
+        </li>
+        <li class="list-group-item"><span class="font-weight-bold">Desc: </span> {{product.description}}</li>
+        <li class="list-group-item"><span class="font-weight-bold">Caption: </span> {{product.caption}}</li>
+        <li class="list-group-item"><span class="font-weight-bold">Dimensions: </span>
+            {{#each dimensions}} {{this}} x {{/each}}</li>
+        <li class="list-group-item"><span class="font-weight-bold">Product Id: </span> {{product.id}}</li>
+    </ul>
 </div>
 {{#each images}}
-    <img style="width:200px;height:200px;" src="{{this}}"/>
+<img style="width:200px;height:200px;" src="{{this}}" />
 {{/each}}
 <hr>
-
 <a href="/listproducts">return back to product list</a>
+<hr>
+<h4>Skus</h4>
+{{#each skus}}
+<div class="card">
+    <ul class="list-group list-group-flush">
+        <li class="list-group-item"><span class="font-weight-bold"></span><img width="100px" height="100px"
+                src="{{this.image}}" title="Main Pictire" /></li>
+        <li class="list-group-item">
+            <h4 class="font-weight-bold">{{this.attributes.name}}</h4>
+        </li>
+        <li class="list-group-item"><span class="font-weight-bold">Price: </span> ${{this.price}}</li>
+        <li class="list-group-item"><span class="font-weight-bold">Attributes: </span>
+        {{#each this.attributes}}
+            {{this}}
+        {{/each}}
+        </li>
+        <li class="list-group-item"><span class="font-weight-bold">Sku: </span> {{this.id}}</li>      
+        <li class="list-group-item"><span class="font-weight-bold">Product: </span><a
+                href="/showproduct/{{this.product}}">{{this.product}}</a> </li>
+    </ul>
+</div>
+{{/each}}
