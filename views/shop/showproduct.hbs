@@ -2,7 +2,11 @@
     <form action="/updateProduct" method="POST">
         <ul class="list-group list-group-flush">
             <li class="list-group-item">
-                <h4 class="font-weight-bold">{{product.name}}</h4>
+                <h4 class="font-weight-bold">
+                    {{product.name}} &nbsp;
+                     <a href="/deleteproduct/{{product.id}}" onclick="return confirmDelete('product');"
+                class="btn btn-danger">Delete</a>
+                </h4>
             </li>
             <li class="list-group-item"><span class="font-weight-bold">Description: </span><br> <textarea
                     name="description" cols="40" rows="4" id="description">{{product.description}}</textarea>></li>
@@ -14,13 +18,15 @@
                     name="images" placeholder="separate images with a comma" value="{{product.images}}"
                     style="width:350px;" id="images"></li>
             <li class="list-group-item"><span class="font-weight-bold">Product Id: </span> {{product.id}}</li>
-            <li class="list-group-item"><button type="submit">Update</button></li>
+            <li class="list-group-item">
+                <button style="width:280px;" type="submit">Update</button>               
+            </li>
             <input type="hidden" value="{{product.id}}" name="productId">
         </ul>
     </form>
 </div>
 {{#each images}}
-<img style="width:200px;height:200px;" src="{{this}}" />
+<img style="max-width:300px;" src="{{this}}" />
 {{/each}}
 <hr>
 <a href="/listproducts">return back to product list</a>
@@ -49,14 +55,19 @@
                         <div class="col-sm-10">
                             <input type="text" name="name" class="form-control" id="name" placeholder="Special Edition">
                         </div>
+                        <label for="description" class="col-sm-2 col-form-label">Description</label>
+                        <div class="col-sm-10">
+                            <textarea name="description" cols="50" rows="5" class="form-control" id="description"
+                                placeholder="enter description for sku here"></textarea>
+                        </div>
                         <label for="year" class="col-sm-2 col-form-label">Year</label>
                         <div class="col-sm-10">
                             <input type="text" name="year" class="form-control" id="year" placeholder="2019">
-                        </div>               
+                        </div>
                         <label for="type" class="col-sm-2 col-form-label">Type</label>
                         <div class="col-sm-10">
                             <input type="text" name="type" class="form-control" id="type" placeholder="i.e. Download">
-                        </div>                                 
+                        </div>
                         <label for="price" class="col-sm-2 col-form-label">Price</label>
                         <div class="col-sm-10">
                             <input type="text" name="price" class="form-control" id="price" placeholder="ex: 60.00">
@@ -71,7 +82,8 @@
                     </div>
                     <div class="form-group row">
                         <div class="col-sm-10 offset-sm-1">
-                            <button style="width:150px;" type="submit" class="btn btn-primary btn-sm">Create Sku</button>
+                            <button style="width:150px;" type="submit" class="btn btn-primary btn-sm">Create
+                                Sku</button>
                         </div>
                         <input type="hidden" name="productId" id="productId" value="{{product.id}}">
                     </div>
@@ -85,10 +97,15 @@
 {{#each skus}}
 <div class="card">
     <ul class="list-group list-group-flush">
-        <li class="list-group-item"><span class="font-weight-bold"></span><img width="100px" height="100px"
-                src="{{this.image}}" title="Main Pictire" /></li>
+        <li class="list-group-item"><span class="font-weight-bold"></span><img style="max-width:150px;"
+                src="{{this.image}}" title="Main Pictire" />
+            <a href="/deletesku/{{this.id}}/{{this.product}}" onclick="return confirmDelete('sku');"
+                class="btn btn-primary">Delete</a></li>
         <li class="list-group-item">
             <h4 class="font-weight-bold">{{this.attributes.name}}</h4>
+        </li>
+        <li class="list-group-item">
+            <h5 class="font-weight-bold">{{this.attributes.description}}</h5>
         </li>
         <li class="list-group-item"><span class="font-weight-bold">Price: </span> ${{this.price}}</li>
         <li class="list-group-item"><span class="font-weight-bold">Attributes: </span>
@@ -102,3 +119,21 @@
     </ul>
 </div>
 {{/each}}
+
+
+<script>
+    function confirmDelete(type) {
+        if (!confirm('Are you sure you would like to delete this ' + type + '?')) {
+            return false;
+        }
+        if (type == 'product'){
+            if (confirm('You can only delete products that have no SKUs associated with them. Please make sure to delete any associated skus first')){
+                return true;
+            } else 
+            { 
+                return false;
+            }
+        }
+        return true;
+    }
+</script>

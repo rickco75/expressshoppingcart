@@ -15,7 +15,7 @@
     <div class="col-md-12">
         <div class="card">
             <div class="card-body">
-                <form action="/createProduct" method="POST">
+                <form action="/createProduct" onsubmit="return validateFields();" method="POST">
                     <div class="form-group">
                         <label for="name" class="col-sm-2 col-form-label">Name</label>
                         <div class="col-sm-10">
@@ -92,3 +92,15 @@
         </div>
     </div>
 </div>
+
+<script>
+    function validateFields(){
+        var name = document.getElementById('name');
+        if (name.value.length < 1){
+            alert('You must enter a name for this product!');
+            name.style = 'background-color:lightgray';
+            document.getElementById('name').focus();
+            return false;
+        }
+    }
+</script>

@@ -8,8 +8,9 @@ var User = require('../models/user');
 var moment = require('moment');
 var Cart = require('../models/cart');
 var Order = require('../models/order');
-
 const jwt = require("jsonwebtoken");
+
+const stripeAccount = 'sk_test_jaaxtB6dn9mDaOBPAKb43a1A00AWzUss22';
 
 // var csrfProtection = csrf();
 // router.use(csrfProtection);
@@ -166,7 +167,7 @@ router.post("/user/signin", (req, res, next) => {
 
 // USER: GET PROFILE
 router.get('/user/profile', (req, res, next) => {
-  var stripe = require('stripe')('sk_test_jaaxtB6dn9mDaOBPAKb43a1A00AWzUss22');
+  var stripe = require('stripe')(stripeAccount);
   let token = req.cookies.jwt;
   console.log("token", token);
   if (token) {
@@ -306,10 +307,11 @@ router.post('/checkout', isLoggedIn, (req, res, next) => {
     });
   });
 });
+// ******************************** STRIPE ***************************************
 
 // STRIPE: LIST PRODUCTS
 router.get('/listproducts', (req, res, next) => {
-  var stripe = require('stripe')('sk_test_jaaxtB6dn9mDaOBPAKb43a1A00AWzUss22');
+  var stripe = require('stripe')(stripeAccount);
 
   try {
     stripe.products.list(
@@ -329,13 +331,14 @@ router.get('/listproducts', (req, res, next) => {
 
 // STRIPE: CREATE SKU POST
 router.post('/createSku', (req, res, next) => {
-  const stripe = require('stripe')('sk_test_jaaxtB6dn9mDaOBPAKb43a1A00AWzUss22');
+  const stripe = require('stripe')(stripeAccount);
   var productId = req.body.productId;
   var price = req.body.price;
   var image = req.body.image;
   var name = req.body.name;
   var type = req.body.type;
   var year = req.body.year;
+  var description = req.body.description;
 
   console.log(req.body);
   //return res.send('testing');
@@ -347,7 +350,8 @@ router.post('/createSku', (req, res, next) => {
         price: price,
         product: productId,
         image: image,
-        attributes: { 'year': year, 'name': name, 'type':type },
+        //attributes: { 'year': year, 'name': name, 'type':type },
+        attributes: { 'name': name, 'description': description },
       });
     })();
   } catch (err) {
@@ -356,76 +360,118 @@ router.post('/createSku', (req, res, next) => {
   res.redirect('showproduct/' + productId);
 });
 
+// STRIPE: DELETE SKU
+router.get('/deletesku/:skuid/:productid', (req, res, next) => {
+  const stripe = require("stripe")(stripeAccount);
+  var skuId = req.params.skuid;
+  var productId = req.params.productid;
+  stripe.skus.del(
+    skuId,
+    function (err, confirmation) {
+      console.log(confirmation);
+      if (confirmation.deleted) {
+        //return res.send('sku deleted successfully');
+        return res.redirect('/showproduct/' + productId);
+      } else {
+        return res.send(err);
+      }
+    }
+  );
+});
+
 // STRIPE: SHOW INDIVIDUAL PRODUCT WITH SKUS
 router.get('/showproduct/:id', (req, res, next) => {
   var productId = req.params.id;
-  var stripe = require('stripe')('sk_test_jaaxtB6dn9mDaOBPAKb43a1A00AWzUss22');
-    stripe.products.retrieve(
-      productId,
-      function (err, product) {
-        // asynchronously called
-        var images = product.images;
-        var dimensions = product.package_dimensions;
-        //console.log(product);
-        stripe.skus.list(
-          {limit:100,product:productId},
-          function(err, skus) {
-            // asynchronously called
-            //console.log("skus: " + skus.data);
-            for (i=0;i < skus.data.length;i++){
-             // console.log(skus.data[i].product);
-              if (skus.data[i].product == productId){
-                console.log(skus.data[i]);
-              }
+  var stripe = require('stripe')(stripeAccount);
+  stripe.products.retrieve(
+    productId,
+    function (err, product) {
+      // asynchronously called
+      var images = product.images;
+      var dimensions = product.package_dimensions;
+      //console.log(product);
+      stripe.skus.list(
+        { limit: 100, product: productId },
+        function (err, skus) {
+          // asynchronously called
+          //console.log("skus: " + skus.data);
+          for (i = 0; i < skus.data.length; i++) {
+            // console.log(skus.data[i].product);
+            if (skus.data[i].product == productId) {
+              console.log(skus.data[i]);
             }
-            return res.render('shop/showproduct', {skus:skus.data, product: product, images: images, dimensions:dimensions });
           }
-        );        
-        
-        
-      }
-    );
+          return res.render('shop/showproduct', { skus: skus.data, product: product, images: images, dimensions: dimensions });
+        }
+      );
+
+
+    }
+  );
 })
 
 // STRIPE: CREATE PRODUCT
 router.post('/createProduct', (req, res, next) => {
-  const stripe = require('stripe')('sk_test_jaaxtB6dn9mDaOBPAKb43a1A00AWzUss22');
+  const stripe = require('stripe')(stripeAccount);
   console.log(req.body);
-  const product = stripe.products.create({
+  stripe.products.create({
     name: req.body.name,
     type: req.body.type,
-    attributes: ['name','description']//,
-   // description: req.body.description,
+    attributes: ['name', 'description']//,
+    // description: req.body.description,
+  }, function (err, product) {
+    console.log(product);
+    //res.send('creating product');
+    res.redirect('showproduct/' + product.id);
   });
-  console.log(product);
-  res.redirect('listproducts');
 });
 
 // STRIPE: UPDATE PRODUCT
-router.post('/updateProduct',(req,res,next)=>{
-  var stripe = require('stripe')('sk_test_jaaxtB6dn9mDaOBPAKb43a1A00AWzUss22');
+router.post('/updateProduct', (req, res, next) => {
+  var stripe = require('stripe')(stripeAccount);
   var productId = req.body.productId;
-  console.log("images",req.body.images);
+  console.log("images", req.body.images);
   stripe.products.update(
     productId,
     {
-      metadata: {order_id: '6735'},
+      metadata: { order_id: '6735' },
       description: req.body.description,
       caption: req.body.caption,
       images: [req.body.images]
     },
 
-    function(err, product) {
+    function (err, product) {
       console.log(product);
-      return res.redirect('/showproduct/' + productId); 
+      return res.redirect('/showproduct/' + productId);
       // asynchronously called
     }
-  ); 
+  );
+});
+
+// STRIPE: DELETE PRODUCT
+router.get('/deleteproduct/:productid', (req, res, next) => {
+  const stripe = require("stripe")(stripeAccount);
+  const productId = req.params.productid;
+
+  stripe.products.del(
+    productId,
+    function (err, confirmation) {
+      if (confirmation){
+        console.log(confirmation);
+        return res.redirect('/listproducts');
+      }
+      if (err){
+        console.log(err);
+        return res.send('Error occurred: Please delete all skus associated with this product first\n<a href="/showproduct/' + productId + '">Return to product view</a>');
+      }
+      // asynchronously called
+    },
+  );
 });
 
 // STRIPE: CREATE ORDER 
 router.get('/createOrder', (req, res, next) => {
-  const stripe = require("stripe")("sk_test_jaaxtB6dn9mDaOBPAKb43a1A00AWzUss22");
+  const stripe = require("stripe")(stripeAccount);
   stripe.orders.create({
     currency: 'usd',
     items: [
@@ -456,7 +502,7 @@ router.get('/createOrder', (req, res, next) => {
 
 // STRIPE: GET ALL ORDERS
 router.get('/orders', (req, res, next) => {
-  var stripe = require('stripe')('sk_test_jaaxtB6dn9mDaOBPAKb43a1A00AWzUss22');
+  var stripe = require('stripe')(stripeAccount);
   var orderList;
   stripe.orders.list(
     { limit: 3 },
@@ -471,7 +517,7 @@ router.get('/orders', (req, res, next) => {
 
 // STRIPE: GET ALL TRANSACTIONS
 router.get('/getTransactions', (req, res, next) => {
-  var stripe = require('stripe')('sk_test_jaaxtB6dn9mDaOBPAKb43a1A00AWzUss22');
+  var stripe = require('stripe')(stripeAccount);
   var transactionList;
   stripe.issuing.transactions.list(
     { limit: 30 },

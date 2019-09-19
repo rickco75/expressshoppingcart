@@ -1,3 +1,11 @@
 <h1>{{message}}</h1>
 <h2>{{error.status}}</h2>
 <pre>{{error.stack}}</pre>
+
+<button onclick="goBack()" class="btn btn-secondary">Go Back</button>
+
+<script>
+function goBack() {
+  window.history.back();
+}
+</script>
