@@ -8,13 +8,15 @@
                         class="btn btn-danger">Delete</a>
                 </h4>
             </li>
-            <li class="list-group-item"><span class="font-weight-bold">Name: </span>
-                <input name="name" id="name" value="{{customer.name}}" /></li>
-            <li class="list-group-item"><span class="font-weight-bold">Phone: </span>
-                <input type="text" name="phone" id="phone" value="{{customer.phone}}"></li>
-            <li class="list-group-item"><span class="font-weight-bold">Email: </span>
+            <li class="list-group-item"><span class="font-weight-bold">Cust. Id: </span>
                 <input style="width:170px;" type="text" name="email" placeholder="johndoe@gmail.com"
                     value="{{customer.email}}" style="width:350px;" id="email"></li>
+            <li class="list-group-item"><span class="font-weight-bold">Name: </span>
+                <input name="name" id="name" value="{{customer.name}}" /></li>
+            <li class="list-group-item"><span class="font-weight-bold">Description: </span>
+                <input name="description" id="description" value="{{customer.description}}" /></li>                
+            <li class="list-group-item"><span class="font-weight-bold">Phone: </span>
+                <input type="text" name="phone" id="phone" value="{{customer.phone}}"></li>
             <li class="list-group-item"><span class="font-weight-bold">Customer Id: </span> {{customer.id}}</li>
             <li class="list-group-item">
                 <button style="width:280px;" class="btn btn-success" type="submit">Update</button>
