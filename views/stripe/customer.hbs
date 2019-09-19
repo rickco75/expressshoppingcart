@@ -1,0 +1,47 @@
+<div class="card">
+    <form action="/updateCustomer" method="POST">
+        <ul class="list-group list-group-flush">
+            <li class="list-group-item">
+                <h4 class="font-weight-bold">
+                    {{customer.name}} &nbsp;
+                    <a href="/deletecustomer/{{customer.id}}" onclick="return confirmDelete('customer');"
+                        class="btn btn-danger">Delete</a>
+                </h4>
+            </li>
+            <li class="list-group-item"><span class="font-weight-bold">Name: </span>
+                <input name="name" id="name" value="{{customer.name}}" /></li>
+            <li class="list-group-item"><span class="font-weight-bold">Phone: </span>
+                <input type="text" name="phone" id="phone" value="{{customer.phone}}"></li>
+            <li class="list-group-item"><span class="font-weight-bold">Email: </span>
+                <input style="width:170px;" type="text" name="email" placeholder="johndoe@gmail.com"
+                    value="{{customer.email}}" style="width:350px;" id="email"></li>
+            <li class="list-group-item"><span class="font-weight-bold">Customer Id: </span> {{customer.id}}</li>
+            <li class="list-group-item">
+                <button style="width:280px;" class="btn btn-success" type="submit">Update</button>
+                <a class="btn btn-primary" onclick="goBack();">Go Back</a>
+            </li>
+            <input type="hidden" value="{{customer.id}}" name="customerId">
+        </ul>
+    </form>
+</div>
+
+
+<script>
+    function confirmDelete(type) {
+        if (!confirm('Are you sure you would like to delete this ' + type + '?')) {
+            return false;
+        }
+        if (type == 'product') {
+            if (confirm('You can only delete products that have no SKUs associated with them. Please make sure to delete any associated skus first')) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    function goBack() {
+        window.history.back();
+    }    
+</script>

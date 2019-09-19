@@ -1,0 +1,108 @@
+<!-- Button trigger modal -->
+<div class="row">
+    <div class="col-md-12">
+        <button style="width:170px;height:35px;" type="button" class="btn btn-primary" data-toggle="modal"
+            data-target="#exampleModalCentered">
+            + Add
+        </button>
+        <!-- Modal -->
+        <div class="modal" id="exampleModalCentered" tabindex="-1" role="dialog"
+            aria-labelledby="exampleModalCenteredLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h6 class="modal-title" id="exampleModalCenteredLabel">Add Customer</h6>
+                    </div>
+                    <div class="modal-body">
+                        <form action="/addcustomer" onsubmit="return validateForm();" method="POST" id="addCustomer">
+                            <div class="form-group">
+                                <label for="name">Name</label>
+                                <input type="text" class="form-control" id="name" name="name"
+                                    placeholder="ex: John Doe">
+                            </div>
+                            <div class="form-group">
+                                <label for="email">Email</label>
+                                <input type="text" class="form-control" id="email" name="email"
+                                    placeholder="ex: johndoe@gmail.com">
+                            </div>
+                            <div class="form-group">
+                                <label for="phone">Phone</label>
+                                <input type="text" class="form-control" name="phone" id="phone"
+                                    placeholder="ex: 3234546678">
+                            </div> 
+                            <div class="form-group">
+                                <label for="description">Description</label>
+                                <input type="text" class="form-control" id="description" name="description"
+                                    placeholder="ex: 3234546678">
+                            </div>                                                         
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-primary" onclick="document.getElementById('addCustomer').submit();">Save changes</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-body">
+                <h4 class="card-title">
+                    <a href="#collapseCustomers" role="button" aria-expanded="false" aria-controls="collapseCustomers"
+                        data-toggle="collapse" class="btn btn-primary">Customers (Show/Hide)</a>
+                </h4>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row show" id="collapseCustomers">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-body">
+                <table id="customerstable"
+                    class="table table-responsive table-striped table-sm-responsive table-md-responsive">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Phone</th>
+                            <th>Balance</th>
+                            <th>Id</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {{#each customers}}
+                        <tr>
+                            <td>{{this.name}}</td>
+                            <td>{{this.email}}</td>
+                            <td>{{this.phone}}</td>
+                            <td>{{this.balance}}</td>
+                            <td><a title="view customer details" href="/customer/{{this.id}}">{{this.id}}</a></td>
+                        </tr>
+                        {{/each}}
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Phone</th>
+                            <th>Balance</th>
+                            <th>Id</th>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    function validateForm(){
+        return true;
+    }
+</script>

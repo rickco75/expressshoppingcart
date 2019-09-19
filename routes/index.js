@@ -456,11 +456,11 @@ router.get('/deleteproduct/:productid', (req, res, next) => {
   stripe.products.del(
     productId,
     function (err, confirmation) {
-      if (confirmation){
+      if (confirmation) {
         console.log(confirmation);
         return res.redirect('/listproducts');
       }
-      if (err){
+      if (err) {
         console.log(err);
         return res.send('Error occurred: Please delete all skus associated with this product first\n<a href="/showproduct/' + productId + '">Return to product view</a>');
       }
@@ -529,6 +529,71 @@ router.get('/getTransactions', (req, res, next) => {
   res.send("transactionlist: " + transactionList);
 
 });
+
+// STRIPE: GET ALL CUSTOMERS
+router.get('/customers', (req, res, next) => {
+  const stripe = require("stripe")(stripeAccount);
+
+  stripe.customers.list(
+    { limit: 100 },
+    function (err, customers) {
+      console.log(customers);
+      if (customers.data) {
+        return res.render('stripe/customers', { customers: customers.data });
+      }
+      return res.send(console.log(err));
+      // asynchronously called
+    }
+  );
+});
+
+// STRIPE: GET CUSTOMER
+router.get('/customer/:customerid', (req, res, next) => {
+  var stripe = require('stripe')(stripeAccount);
+  var customerId = req.params.customerid;
+
+  stripe.customers.retrieve(
+    customerId,
+    function (err, customer) {
+      if (customer) {
+        console.log(customer);
+        return res.render('stripe/customer', { customer: customer })
+      }
+      if (err) {
+        return res.send(err);
+      }
+      // asynchronously called
+    }
+  );
+});
+
+// STRIPE: CREATE CUSTOMER
+router.post('/addcustomer',(req,res,next)=>{
+  const stripe = require("stripe")(stripeAccount);
+  var name = req.body.name;
+  var email = req.body.email;
+  var phone = req.body.phone;
+  var description = req.body.description;
+
+  stripe.customers.create({
+    name: name,
+    email: email,
+    phone:phone,
+    description: description
+    //source: "tok_mastercard" // obtained with Stripe.js
+  }, function(err, customer) {
+      if (customer){
+        console.log(customer);
+        return res.redirect('/customers');
+      }
+      if (err){
+        console.log(err);
+        return res.send('There was an error with your request');
+      }
+    // asynchronously called
+  });  
+});
+
 
 module.exports = router;
 

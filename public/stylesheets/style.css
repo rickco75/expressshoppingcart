@@ -90,7 +90,7 @@ label > span {
 .field::-webkit-input-placeholder { color: #CFD7E0; }
 .field::-moz-placeholder { color: #CFD7E0; }
 
-button {
+/* button {
   float: left;
   display: block;
   background: #666EE8;
@@ -102,11 +102,11 @@ button {
   margin-top: 20px;
   font-size: 15px;
   font-weight: 400;
-  width: 100%;
+  width: 50%;
   height: 40px;
   line-height: 38px;
   outline: none;
-}
+} */
 
 button:focus {
   background: #555ABF;
