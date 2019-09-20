@@ -26,7 +26,7 @@
     </form>
 </div>
 {{#each images}}
-<img style="max-width:300px;" src="{{this}}" />
+<img style="max-width:300px;" class="rounded-lg" src="{{this}}" />
 {{/each}}
 <hr>
 <a href="/listproducts">return back to product list</a>
@@ -97,8 +97,8 @@
 {{#each skus}}
 <div class="card">
     <ul class="list-group list-group-flush">
-        <li class="list-group-item"><span class="font-weight-bold"></span><img style="max-width:150px;"
-                src="{{this.image}}" title="Main Pictire" />
+        <li class="list-group-item"><span class="font-weight-bold"></span>
+        <img style="max-width:150px;" class="rounded-lg" src="{{this.image}}" title="Main Pictire" />
             <a href="/deletesku/{{this.id}}/{{this.product}}" onclick="return confirmDelete('sku');"
                 class="btn btn-primary">Delete</a></li>
         <li class="list-group-item">

@@ -1,7 +1,10 @@
 <ul class="list-group">
     {{#each order}}
     <li class="list-group-item bg-primary text-white">Order Id: {{_id}}</li>
-    <li class="list-group-item">Total Qty: {{cart.totalQty}} - ${{cart.totalPrice}}</li>
+    <li class="list-group-item bg-light text-dark">Name: {{name}}</li>
+    <li class="list-group-item bg-light text-dark">Address: {{address}} - {{city}} {{state}}, {{zipcode}}</li>
+    <li class="list-group-item bg-light text-dark">Phone: {{phone}}</li>
+    <li class="list-group-item bg-light text-dark">Total Qty: {{cart.totalQty}} - ${{cart.totalPrice}}</li>
     <li class="list-group-item bg-secondary text-white">Items In Cart</li>
         {{#each this.items}}
             <li class="ml-4 list-group-item font-weight-bold bg-info">
@@ -10,10 +13,13 @@
         {{/each}}
     {{/each}}
 </ul>
+<hr>
 <ul class="list-group">
-    <li class="list-group-item bg-light text-dark">Name: {{charge.source.name}}</li>
     <li class="list-group-item bg-primary text-white">Charge Id: {{charge.id}}</li>
-    <li class="list-group-item bg-primary text-white">Balance Transaction: {{charge.balance_transaction}}</li>
+    <li class="list-group-item bg-light text-dark">Name: {{charge.source.name}}</li>
+    <li class="list-group-item bg-light text-dark">Balance Transaction: {{charge.balance_transaction}}</li>
+    <li class="list-group-item bg-light text-dark">Brand: {{charge.source.brand}} - last4 ({{charge.source.last4}}) - exp: {{charge.source.exp_month}}/{{charge.source.exp_year}}</li>
+    <li class="list-group-item bg-light text-dark">Status: {{charge.status}}</li>
 </ul>
 <hr>
 <a href="/stripe/orders">Return to orders</a>

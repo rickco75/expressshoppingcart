@@ -309,6 +309,59 @@ router.post('/checkout', isLoggedIn, (req, res, next) => {
 });
 // ******************************** STRIPE ***************************************
 
+
+// STRIPE: ADD PRODUCT TO CART 
+router.get('/stripe/add-to-cart/:id', (req, res, next) => {
+  var stripe = require('stripe')(stripeAccount);
+  var productId = req.params.id;
+  var cart = new Cart(req.session.cart ? req.session.cart : {});
+  stripe.products.retrieve(
+    productId,
+    function(err, product) {
+      if (err) {
+        return res.redirect('/strip/shop');
+      }
+      var stripeProduct = {
+        imagePath: product.images,
+        title: product.name,
+        description: product.description,
+        price: 100
+      };
+      console.log("stripeProduct",stripeProduct);
+      cart.add(stripeProduct, product.id);
+      req.session.cart = cart;
+      console.log(req.session.cart);   
+      res.redirect('/stripe/shop');         
+      // asynchronously called
+    }
+  );
+});
+
+// STRIPE GET PRODUCTS FOR STRIPE SHOP
+router.get('/stripe/shop',(req,res,next)=>{
+  var stripe = require('stripe')(stripeAccount);
+
+  stripe.products.list(
+    {limit: 100},
+    function(err, products) {
+      if (products){
+        //console.log("proudcts",products.data);
+        var productChunks = [];
+        var chunkSize = 3;
+        for (var i = 0; i < products.data.length; i += chunkSize) {
+          productChunks.push(products.data.slice(i, i + chunkSize));
+        }
+        return res.render('stripe/shop',{products:productChunks});
+      }
+      if (err){
+        return res.send(err);
+      }
+      // asynchronously called
+    }
+  );
+});
+
+
 // STRIPE/USERS GET ORDERS
 router.get('/stripe/orders',(req,res,next)=>{
   Order.find({}, function (err, orders) {
@@ -342,7 +395,7 @@ router.get('/stripe/order/:orderid/:chargeid',(req,res,next)=>{
         function(err, charge) {
           if (charge){
             console.log("order",order);
-            console.log("charge",charge);
+            //console.log("charge",charge);
             return res.render('stripe/order',{order:order,charge:charge}); 
           }
           if (err){
@@ -361,10 +414,10 @@ router.get('/listproducts', (req, res, next) => {
 
   try {
     stripe.products.list(
-      { limit: 10 },
+      { limit: 100 },
       function (err, products) {
         // asynchronously called
-        console.log(products.data);
+        //console.log(products.data);
         return res.render('shop/showproducts', { products: products.data });
       }
     );
