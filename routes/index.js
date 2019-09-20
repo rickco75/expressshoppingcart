@@ -271,7 +271,7 @@ router.post('/checkout', isLoggedIn, (req, res, next) => {
     return res.redirect('/shopping-cart');
   }
   var cart = new Cart(req.session.cart);
-  var stripe = require("stripe")("sk_test_jaaxtB6dn9mDaOBPAKb43a1A00AWzUss22");
+  var stripe = require("stripe")(stripeAccount);
   console.log(req.body.stripeToken);
   stripe.charges.create({
     amount: cart.totalPrice * 100,
@@ -308,6 +308,52 @@ router.post('/checkout', isLoggedIn, (req, res, next) => {
   });
 });
 // ******************************** STRIPE ***************************************
+
+// STRIPE/USERS GET ORDERS
+router.get('/stripe/orders',(req,res,next)=>{
+  Order.find({}, function (err, orders) {
+    if (err){
+      return res.send(err);
+    }
+    if (orders){
+      return res.render('stripe/orders',{orders:orders}); 
+    }
+  });
+});
+
+// STRIPE / ORDERS FIND SPECIFIC ORDER
+router.get('/stripe/order/:orderid/:chargeid',(req,res,next)=>{
+  var stripe = require('stripe')(stripeAccount);
+  var orderId = req.params.orderid;
+  var chargeId = req.params.chargeid;
+  Order.find({_id:orderId}, function (err, order) {
+    if (err){
+      return res.send(err);
+    }
+    if (order){
+      var cart;
+      order.forEach(function (order) {
+        cart = new Cart(order.cart);
+        order.items = cart.generateArray();
+      });      
+     // console.log("order",order);
+      stripe.charges.retrieve(
+        chargeId,
+        function(err, charge) {
+          if (charge){
+            console.log("order",order);
+            console.log("charge",charge);
+            return res.render('stripe/order',{order:order,charge:charge}); 
+          }
+          if (err){
+            return res.send("error: " + err);
+          }
+          // asynchronously called
+        }
+      );      
+    }
+  });
+});
 
 // STRIPE: LIST PRODUCTS
 router.get('/listproducts', (req, res, next) => {
@@ -568,7 +614,7 @@ router.get('/customer/:customerid', (req, res, next) => {
 });
 
 // STRIPE: CREATE CUSTOMER
-router.post('/addcustomer',(req,res,next)=>{
+router.post('/addcustomer', (req, res, next) => {
   const stripe = require("stripe")(stripeAccount);
   var name = req.body.name;
   var email = req.body.email;
@@ -578,22 +624,73 @@ router.post('/addcustomer',(req,res,next)=>{
   stripe.customers.create({
     name: name,
     email: email,
-    phone:phone,
+    phone: phone,
     description: description
     //source: "tok_mastercard" // obtained with Stripe.js
-  }, function(err, customer) {
-      if (customer){
+  }, function (err, customer) {
+    if (customer) {
+      console.log(customer);
+      return res.redirect('/customers');
+    }
+    if (err) {
+      console.log(err);
+      return res.send('There was an error with your request');
+    }
+    // asynchronously called
+  });
+});
+
+router.post('/updatecustomer', (req, res, next) => {
+  var stripe = require('stripe')(stripeAccount);
+  var customerId = req.body.customerId;
+  var email = req.body.email;
+  var name = req.body.name;
+  var description = req.body.description;
+  var phone = req.body.phone;
+
+  stripe.customers.update(
+    customerId,
+    {
+      metadata: { order_id: '6735' },
+      name: name,
+      email: email,
+      description: description,
+      phone: phone
+    },
+    function (err, customer) {
+      if (customer) {
         console.log(customer);
+        return res.redirect('/customer/' + customerId);
+      }
+      if (err) {
+        console.log(err);
+        return res.send(err);
+      }
+      // asynchronously called
+    }
+  );
+});
+
+// STRIPE: DELETE CUSTOMER - GET
+router.get('/deletecustomer/:customerId', (req, res, next) => {
+  var stripe = require('stripe')(stripeAccount);
+  var customerId = req.params.customerId;
+
+  stripe.customers.del(
+    customerId,
+    function (err, confirmation) {
+      // asynchronously called
+      if (confirmation){
+        console.log(confirmation);
         return res.redirect('/customers');
       }
       if (err){
         console.log(err);
-        return res.send('There was an error with your request');
+        return res.send(err);
       }
-    // asynchronously called
-  });  
+    }
+  );
 });
-
 
 module.exports = router;
 

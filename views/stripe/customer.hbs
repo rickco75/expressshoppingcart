@@ -8,7 +8,7 @@
                         class="btn btn-danger">Delete</a>
                 </h4>
             </li>
-            <li class="list-group-item"><span class="font-weight-bold">Cust. Id: </span>
+            <li class="list-group-item"><span class="font-weight-bold">Email: </span>
                 <input style="width:170px;" type="text" name="email" placeholder="johndoe@gmail.com"
                     value="{{customer.email}}" style="width:350px;" id="email"></li>
             <li class="list-group-item"><span class="font-weight-bold">Name: </span>
@@ -19,8 +19,8 @@
                 <input type="text" name="phone" id="phone" value="{{customer.phone}}"></li>
             <li class="list-group-item"><span class="font-weight-bold">Customer Id: </span> {{customer.id}}</li>
             <li class="list-group-item">
-                <button style="width:280px;" class="btn btn-success" type="submit">Update</button>
-                <a class="btn btn-primary" onclick="goBack();">Go Back</a>
+                <button style="width:120px;" class="btn btn-success" type="submit">Update</button>
+                <a href="/customers" class="btn btn-primary">Go Back</a>
             </li>
             <input type="hidden" value="{{customer.id}}" name="customerId">
         </ul>

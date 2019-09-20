@@ -1,0 +1,44 @@
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-body">
+                <h4 class="card-title">
+                    <a href="#collapseOrders" role="button" aria-expanded="false" aria-controls="collapseOrders"
+                        data-toggle="collapse" class="btn btn-primary">Manage Orders (Show/Hide)</a>
+                </h4>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row show" id="collapseOrders">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-body">
+                <table id="stripeOrdersTable" class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Address</th>
+                            <th>Phone</th>
+                            <th>Qty</th>
+                            <th>Total Price</th>
+                            <th>Payment Id</th>                            
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {{#each orders}}
+                        <tr>
+                            <th>{{name}}</th>
+                            <td>{{address}} {{city}},{{state}} {{zipcode}}</td>
+                            <td>{{phone}}</td>
+                            <td>{{cart.totalQty}}</td>
+                            <td>${{cart.totalPrice}}</td>
+                            <td><a href="/stripe/order/{{id}}/{{paymentId}}">{{paymentId}}</a></td>
+                        </tr>
+                        {{/each}}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

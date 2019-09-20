@@ -1,0 +1,19 @@
+<ul class="list-group">
+    {{#each order}}
+    <li class="list-group-item bg-primary text-white">Order Id: {{_id}}</li>
+    <li class="list-group-item">Total Qty: {{cart.totalQty}} - ${{cart.totalPrice}}</li>
+    <li class="list-group-item bg-secondary text-white">Items In Cart</li>
+        {{#each this.items}}
+            <li class="ml-4 list-group-item font-weight-bold bg-info">
+                {{this.item.title}} | Units: {{this.qty}} ${{this.price}}
+            </li>
+        {{/each}}
+    {{/each}}
+</ul>
+<ul class="list-group">
+    <li class="list-group-item bg-light text-dark">Name: {{charge.source.name}}</li>
+    <li class="list-group-item bg-primary text-white">Charge Id: {{charge.id}}</li>
+    <li class="list-group-item bg-primary text-white">Balance Transaction: {{charge.balance_transaction}}</li>
+</ul>
+<hr>
+<a href="/stripe/orders">Return to orders</a>
